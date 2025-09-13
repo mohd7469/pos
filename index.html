@@ -8,7 +8,128 @@
 		<title>Hostinger Horizons</title>
 	</head>
 	<body>
-		<div id="root"></div>
-		<script type="module" src="/src/main.jsx"></script>
+		<!--<div id="root"></div>
+		<script type="module" src="/src/main.jsx"></script>-->
+        <div id="root" style="display:none"></div>
+        <script type="module">
+          /*** CONFIG (edit) ***/
+          const PASSWORD = "";
+          const PASS_HASH = "f766ae4fe0bdbfee9792703feaf2c1f68b08215c4d2c4f75d90b50628caa3934";
+          const MAX_ATTEMPTS = 5;              // window ke andar max galat tries
+          const ATTEMPT_WINDOW_MINUTES = 5;    // attempts count karne ki window (minutes)
+          const LOCK_MINUTES = 1;              // lock duration (minutes)
+          const LOCK_ON_CANCEL = true;         // cancel par turant lock?
+
+          const COOKIE_NAME = "APP_OK";        // unlock cookie
+          const COOKIE_MAX_AGE = 60*60*24;     // 1 day (seconds)
+          const LOCK_KEY = "APP_LOCK_UNTIL";
+          const RL_KEY = "APP_TRIES";
+
+          /*** UTILS ***/
+          async function sha256(s){
+            const b = new TextEncoder().encode(s);
+            const h = await crypto.subtle.digest("SHA-256", b);
+            return [...new Uint8Array(h)].map(x=>x.toString(16).padStart(2,"0")).join("");
+          }
+          function setCookie(n,v,age){ document.cookie = `${n}=${v}; path=/; max-age=${age}; SameSite=Lax`; }
+          function isUnlocked(){ return document.cookie.includes(`${COOKIE_NAME}=1`); }
+          function getLockUntil(){ try { return parseInt(localStorage.getItem(LOCK_KEY)||"0",10)||0; } catch { return 0; } }
+          function setLock(min){ const until = Date.now()+min*60*1000; try{ localStorage.setItem(LOCK_KEY,String(until)); }catch{}; showLocked(until); }
+          function clearLock(){ try{ localStorage.removeItem(LOCK_KEY); }catch{} }
+
+          function ensureRoot(){
+            let el = document.getElementById("root");
+            if (!el) { el = document.createElement("div"); el.id="root"; document.body.prepend(el); }
+            return el;
+          }
+          async function bootApp(){
+            const el = ensureRoot();
+            el.style.display = "block";
+            await import("/src/main.jsx");   // <- yahin se app load hoga
+          }
+          function removeRoot(){
+            document.getElementById("root")?.remove();
+          }
+          function showLocked(untilTs){
+            // Poora page par overlay; app visible nahi hogi
+            const style = document.createElement("style");
+            style.textContent = `
+      #__lock__{position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;
+        background:rgba(0,0,0,.6);backdrop-filter:blur(2px)}
+      #__lock__ .box{background:#111;color:#fff;padding:20px 24px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.35);
+        font:16px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;text-align:center;max-width:420px}
+      #__lock__ h1{margin:0 0 8px;font-size:20px}
+      #__lock__ p{margin:0;opacity:.9}
+    `;
+            const el = document.createElement("div");
+            el.id="__lock__";
+            el.innerHTML=`<div class="box"><h1>Access temporarily locked</h1><p id="__lock_msg">Try again soon…</p></div>`;
+            document.head.appendChild(style);
+            document.body.appendChild(el);
+            removeRoot(); // make sure root is gone
+            const tick = () => {
+              const ms = untilTs - Date.now();
+              if (ms <= 0) { location.reload(); return; }
+              const m = Math.floor(ms/60000), s = Math.floor((ms%60000)/1000);
+              document.getElementById("__lock_msg").textContent = `Try again in ${m}m ${s}s.`;
+            };
+            tick(); setInterval(tick,1000);
+          }
+
+          // Password hash resolve
+          const passHashPromise = (async()=>{
+            if (PASSWORD) return sha256(PASSWORD);
+            if (PASS_HASH) return PASS_HASH;
+            return "__NO_PASSWORD_SET__"; // safety: block if nothing set
+          })();
+
+          /*** FLOW ***/
+          (async () => {
+            if (isUnlocked()) return bootApp();
+
+            const lockUntil = getLockUntil();
+            if (lockUntil > Date.now()) return showLocked(lockUntil);
+
+            // Root ko abhi hata do, taake kuch nazar na aaye
+            removeRoot();
+
+            const PASS_HASH_FINAL = await passHashPromise;
+
+            // Optional one-time unlock via URL: /?key=YOUR_PASSWORD
+            const qs = new URLSearchParams(location.search);
+            const key = qs.get("key");
+            if (key && await sha256(key) === PASS_HASH_FINAL) {
+              clearLock(); setCookie(COOKIE_NAME,"1",COOKIE_MAX_AGE);
+              history.replaceState(null,"",location.pathname);
+              return bootApp();
+            }
+
+            // Attempts window
+            const now = Date.now();
+            let st = null;
+            try { st = JSON.parse(localStorage.getItem(RL_KEY) || "null"); } catch {}
+            if (!st || now > (st.t || 0) + ATTEMPT_WINDOW_MINUTES*60*1000) st = { n: 0, t: now };
+            if (st.n >= MAX_ATTEMPTS) return setLock(LOCK_MINUTES);
+
+            // Prompt
+            const input = prompt("Enter password");
+            if (input === null || input === "") {
+              if (LOCK_ON_CANCEL) return setLock(LOCK_MINUTES);
+              st.n++; st.t = now; localStorage.setItem(RL_KEY, JSON.stringify(st));
+              return setLock(LOCK_MINUTES);
+            }
+
+            // Check
+            if (await sha256(input) === PASS_HASH_FINAL) {
+              clearLock(); setCookie(COOKIE_NAME,"1",COOKIE_MAX_AGE);
+              return bootApp();
+            } else {
+              st.n++; st.t = now; localStorage.setItem(RL_KEY, JSON.stringify(st));
+              if (st.n >= MAX_ATTEMPTS) return setLock(LOCK_MINUTES);
+              alert(`Wrong password (${st.n}/${MAX_ATTEMPTS})`);
+              location.reload();
+            }
+          })();
+        </script>
 	</body>
 </html>
