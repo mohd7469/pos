@@ -16,9 +16,9 @@
           const PASSWORD = "";
           const PASS_HASH = "f766ae4fe0bdbfee9792703feaf2c1f68b08215c4d2c4f75d90b50628caa3934";
           const MAX_ATTEMPTS = 5;              // window ke andar max galat tries
-          const ATTEMPT_WINDOW_MINUTES = 5;    // attempts count karne ki window (minutes)
+          const ATTEMPT_WINDOW_MINUTES = 1;    // attempts count karne ki window (minutes)
           const LOCK_MINUTES = 1;              // lock duration (minutes)
-          const LOCK_ON_CANCEL = true;         // cancel par turant lock?
+          const LOCK_ON_CANCEL = false;        // cancel par turant lock?
 
           const COOKIE_NAME = "APP_OK";        // unlock cookie
           const COOKIE_MAX_AGE = 60*60*24;     // 1 day (seconds)
@@ -69,7 +69,16 @@
             removeRoot(); // make sure root is gone
             const tick = () => {
               const ms = untilTs - Date.now();
-              if (ms <= 0) { location.reload(); return; }
+              if (ms <= 0) {
+                try {
+                  localStorage.removeItem(LOCK_KEY);
+                  localStorage.removeItem(RL_KEY);
+                } catch {
+                  location.reload();
+                }
+                location.reload();
+                return;
+              }
               const m = Math.floor(ms/60000), s = Math.floor((ms%60000)/1000);
               document.getElementById("__lock_msg").textContent = `Try again in ${m}m ${s}s.`;
             };
@@ -89,6 +98,13 @@
 
             const lockUntil = getLockUntil();
             if (lockUntil > Date.now()) return showLocked(lockUntil);
+            else if (lockUntil) {
+              // ✅ FIX: agar purana (expire ho chuka) lock key pada hai to clear kar do
+              try {
+                localStorage.removeItem(LOCK_KEY);
+                localStorage.removeItem(RL_KEY);
+              } catch {}
+            }
 
             // Root ko abhi hata do, taake kuch nazar na aaye
             removeRoot();
@@ -113,10 +129,16 @@
 
             // Prompt
             const input = prompt("Enter password");
-            if (input === null || input === "") {
+            /*if (input === null || input === "") {
               if (LOCK_ON_CANCEL) return setLock(LOCK_MINUTES);
               st.n++; st.t = now; localStorage.setItem(RL_KEY, JSON.stringify(st));
               return setLock(LOCK_MINUTES);
+            }*/
+            if (input === null || input === "") {
+              alert("Password required. Click OK and try again.");
+              // Note: is reload se koi attempt count nahi hoga
+              location.reload();
+              return;
             }
 
             // Check
