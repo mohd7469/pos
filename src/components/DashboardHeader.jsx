@@ -1,9 +1,9 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Download, RefreshCw, Store } from 'lucide-react';
+import { Plus, Download, RefreshCw, Store, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-const DashboardHeader = ({ onAddStore, onSync, onExport, loading, storesCount, ordersCount }) => {
+const DashboardHeader = ({ openCSR, onAddStore, onSync, onExport, loading, storesCount, ordersCount }) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: -20 }}
@@ -22,6 +22,14 @@ const DashboardHeader = ({ onAddStore, onSync, onExport, loading, storesCount, o
           </p>
         </div>
         <div className="flex gap-3">
+          <Button
+            onClick={openCSR}
+            variant="outline"
+          >
+            <ExternalLink className="h-4 w-4 mr-2" />
+            CSR
+          </Button>
+          
           <Button
             onClick={onAddStore}
             className="bg-blue-600 hover:bg-blue-700"
