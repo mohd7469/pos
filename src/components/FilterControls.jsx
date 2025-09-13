@@ -32,7 +32,7 @@ const FilterControls = ({ orders, stores, onFilterChange, filteredCount, screenO
         { value: 'all', label: 'All Time' },
         { value: 'today', label: 'Today' },
         { value: 'week', label: 'Last 7 Days' },
-        { value: 'month', label: 'Last 30 Days' },
+        // { value: 'month', label: 'Last 30 Days' },
     ], []);
 
     const storeOptions = useMemo(() => [

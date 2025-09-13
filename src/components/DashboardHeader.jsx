@@ -37,14 +37,14 @@ const DashboardHeader = ({ onAddStore, onSync, onExport, loading, storesCount, o
             <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Sync Orders
           </Button>
-          <Button
+          {/*<Button
             onClick={onExport}
             disabled={ordersCount === 0}
             variant="outline"
           >
             <Download className="h-4 w-4 mr-2" />
             Export
-          </Button>
+          </Button>*/}
         </div>
       </div>
     </motion.div>
