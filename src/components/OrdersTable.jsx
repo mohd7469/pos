@@ -1,14 +1,17 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Eye, Package, Phone, ExternalLink, FileText } from 'lucide-react';
+import { Eye, Package, ExternalLink, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import BulkActionsToolbar from '@/components/BulkActionsToolbar';
+import EditableField from '@/components/EditableField';
+import Pagination from '@/components/Pagination';
 import { generateOrderPDF } from '@/lib/pdfGenerator';
 
-const OrderRow = ({ order, index, isDuplicatePhone, isSelected, onSelectionChange }) => {
+const OrderRow = ({ order, index, isDuplicatePhone, isSelected, onSelectionChange, onUpdateOrderDetails, visibleColumns }) => {
   const getStatusColor = (status) => {
     const colors = {
       'pending': 'bg-yellow-100 text-yellow-800',
@@ -38,14 +41,37 @@ const OrderRow = ({ order, index, isDuplicatePhone, isSelected, onSelectionChang
       currency: currency || 'USD'
     }).format(amount);
   };
-  
-  const formatPhoneNumber = (phone) => {
-    if (!phone) return null;
-    const cleaned = ('' + phone).replace(/\D/g, '');
-    return `https://wa.me/${cleaned}`;
+
+  const handleFieldSave = (orderId, data) => {
+    return onUpdateOrderDetails(order.store_id, orderId, data);
   };
 
-  const formatAddress = (address) => {
+  const BillingAddress = ({ address }) => {
+    if (!address) return 'N/A';
+    return (
+      <div className="space-y-1">
+        <div className="flex gap-1">
+            <EditableField initialValue={address.first_name} onSave={handleFieldSave} fieldName="first_name" orderId={order.id} />
+            <EditableField initialValue={address.last_name} onSave={handleFieldSave} fieldName="last_name" orderId={order.id} />
+        </div>
+        <EditableField initialValue={address.company} onSave={handleFieldSave} fieldName="company" orderId={order.id} />
+        <EditableField initialValue={address.address_1} onSave={handleFieldSave} fieldName="address_1" orderId={order.id} />
+        <EditableField initialValue={address.address_2} onSave={handleFieldSave} fieldName="address_2" orderId={order.id} />
+        <div className="flex gap-1">
+            <EditableField initialValue={address.city} onSave={handleFieldSave} fieldName="city" orderId={order.id} />
+            <EditableField initialValue={address.state} onSave={handleFieldSave} fieldName="state" orderId={order.id} />
+        </div>
+        <div className="flex gap-1">
+             <EditableField initialValue={address.postcode} onSave={handleFieldSave} fieldName="postcode" orderId={order.id} />
+             <EditableField initialValue={address.country} onSave={handleFieldSave} fieldName="country" orderId={order.id} />
+        </div>
+        <EditableField initialValue={address.email} onSave={handleFieldSave} fieldName="email" orderId={order.id} />
+        <EditableField initialValue={address.phone} onSave={handleFieldSave} fieldName="phone" orderId={order.id} isDuplicatePhone={isDuplicatePhone} />
+      </div>
+    );
+  };
+
+   const ShippingAddress = ({ address }) => {
     if (!address || Object.keys(address).length === 0) return 'N/A';
     const parts = [
       `${address.first_name || ''} ${address.last_name || ''}`.trim(),
@@ -56,22 +82,8 @@ const OrderRow = ({ order, index, isDuplicatePhone, isSelected, onSelectionChang
       address.country,
     ].filter(Boolean).filter(p => p.trim() !== ',');
     return (
-      <div className={isDuplicatePhone && address.phone ? 'text-red-600' : ''}>
+      <div>
         {parts.map((part, i) => <div key={i}>{part}</div>)}
-        {address.email && (
-           <div className="text-xs text-gray-500">{address.email}</div>
-        )}
-        {address.phone && (
-           <a
-              href={formatPhoneNumber(address.phone)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 hover:underline flex items-center gap-1 mt-1"
-            >
-              <Phone className="h-3 w-3" />
-              {address.phone}
-            </a>
-        )}
       </div>
     );
   };
@@ -94,25 +106,27 @@ const OrderRow = ({ order, index, isDuplicatePhone, isSelected, onSelectionChang
             />
         </div>
       </td>
-      <td>
+      {visibleColumns.order && <td>
         <div className="font-medium text-blue-600">
           #{order.id}
         </div>
         <div className="text-xs text-gray-500 font-bold text-base">{order.store_name}</div>
-      </td>
-      <td>
+      </td>}
+      {visibleColumns.date && <td>
         <div className="text-sm">
           {formatDate(order.date_created)}
         </div>
-      </td>
-      <td>
+      </td>}
+      {visibleColumns.status && <td>
         <Badge className={`status-badge ${getStatusColor(order.status)}`}>
           {order.status.replace('-', ' ').toUpperCase()}
         </Badge>
-      </td>
-      <td className="text-xs">{formatAddress(order.billing)}</td>
-      <td className="text-xs">{formatAddress(order.shipping)}</td>
-      <td className="text-xs">
+      </td>}
+      {visibleColumns.billing && <td className="text-xs">
+          <BillingAddress address={order.billing} />
+      </td>}
+      {visibleColumns.shipping && <td className="text-xs"><ShippingAddress address={order.shipping} /></td>}
+      {visibleColumns.items && <td className="text-xs">
         <ul className="space-y-1">
           {order.line_items?.map(item => (
             <li key={item.id}>
@@ -133,16 +147,16 @@ const OrderRow = ({ order, index, isDuplicatePhone, isSelected, onSelectionChang
                 <strong>Note:</strong> {order.customer_note}
             </div>
         )}
-      </td>
-      <td>
+      </td>}
+      {visibleColumns.payment && <td>
         <div className="text-sm">{order.payment_method_title}</div>
-      </td>
-      <td>
+      </td>}
+      {visibleColumns.total && <td>
         <div className="font-medium">
           {formatCurrency(order.total, order.currency)}
         </div>
-      </td>
-      <td>
+      </td>}
+      {visibleColumns.actions && <td>
         <div className="flex gap-2">
           <Button
             size="sm"
@@ -161,13 +175,13 @@ const OrderRow = ({ order, index, isDuplicatePhone, isSelected, onSelectionChang
             <FileText className="h-3 w-3" />
           </Button>
         </div>
-      </td>
+      </td>}
     </motion.tr>
   );
 };
 
-const OrdersTable = ({ orders, loading, onUpdateOrders, isUpdatingOrders, stores }) => {
-  const [selectedRows, setSelectedRows] = useState(new Set());
+const OrdersTable = ({ orders, loading, onUpdateOrders, isUpdatingOrders, onUpdateOrderDetails, stores, screenOptions, selectedRows, setSelectedRows }) => {
+  const [currentPage, setCurrentPage] = useState(1);
 
   const phoneNumbersCount = useMemo(() => {
     const counts = {};
@@ -181,8 +195,14 @@ const OrdersTable = ({ orders, loading, onUpdateOrders, isUpdatingOrders, stores
   }, [orders]);
   
   useEffect(() => {
-    setSelectedRows(new Set());
-  }, [orders]);
+    setCurrentPage(1);
+  }, [orders, screenOptions.itemsPerPage]);
+
+  const totalPages = Math.ceil(orders.length / screenOptions.itemsPerPage);
+  const paginatedOrders = useMemo(() => {
+      const startIndex = (currentPage - 1) * screenOptions.itemsPerPage;
+      return orders.slice(startIndex, startIndex + screenOptions.itemsPerPage);
+  }, [orders, currentPage, screenOptions.itemsPerPage]);
 
   const handleSelectionChange = (orderKey) => {
     setSelectedRows(prev => {
@@ -198,7 +218,7 @@ const OrdersTable = ({ orders, loading, onUpdateOrders, isUpdatingOrders, stores
   
   const handleSelectAll = (checked) => {
     if (checked) {
-        const allOrderKeys = new Set(orders.map(o => `${o.store_id}-${o.id}`));
+        const allOrderKeys = new Set(paginatedOrders.map(o => `${o.store_id}-${o.id}`));
         setSelectedRows(allOrderKeys);
     } else {
         setSelectedRows(new Set());
@@ -219,7 +239,7 @@ const OrdersTable = ({ orders, loading, onUpdateOrders, isUpdatingOrders, stores
     );
   }
 
-  if (orders.length === 0) {
+  if (orders.length === 0 && !loading) {
     return (
       <Card className="p-8 text-center">
         <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -231,8 +251,9 @@ const OrdersTable = ({ orders, loading, onUpdateOrders, isUpdatingOrders, stores
     );
   }
   
-  const isAllSelected = selectedRows.size > 0 && selectedRows.size === orders.length;
-  const isIndeterminate = selectedRows.size > 0 && selectedRows.size < orders.length;
+  const currentSelectionOnPage = paginatedOrders.filter(o => selectedRows.has(`${o.store_id}-${o.id}`));
+  const isAllOnPageSelected = currentSelectionOnPage.length > 0 && currentSelectionOnPage.length === paginatedOrders.length;
+  const isIndeterminate = currentSelectionOnPage.length > 0 && currentSelectionOnPage.length < paginatedOrders.length;
 
   return (
     <>
@@ -251,26 +272,26 @@ const OrdersTable = ({ orders, loading, onUpdateOrders, isUpdatingOrders, stores
                   <div className="flex justify-center items-center h-full">
                     <Checkbox
                       id="select-all"
-                      checked={isAllSelected}
+                      checked={isAllOnPageSelected}
                       onCheckedChange={handleSelectAll}
-                      aria-label="Select all rows"
-                      data-state={isIndeterminate ? 'indeterminate' : (isAllSelected ? 'checked' : 'unchecked')}
+                      aria-label="Select all rows on this page"
+                      data-state={isIndeterminate ? 'indeterminate' : (isAllOnPageSelected ? 'checked' : 'unchecked')}
                     />
                   </div>
                 </th>
-                <th>Order</th>
-                <th>Date</th>
-                <th>Status</th>
-                <th>Billing</th>
-                <th>Ship to</th>
-                <th>Items & Notes</th>
-                <th>Payment</th>
-                <th>Total</th>
-                <th>Actions</th>
+                {screenOptions.visibleColumns.order && <th>Order</th>}
+                {screenOptions.visibleColumns.date && <th>Date</th>}
+                {screenOptions.visibleColumns.status && <th>Status</th>}
+                {screenOptions.visibleColumns.billing && <th>Billing</th>}
+                {screenOptions.visibleColumns.shipping && <th>Ship to</th>}
+                {screenOptions.visibleColumns.items && <th>Items & Notes</th>}
+                {screenOptions.visibleColumns.payment && <th>Payment</th>}
+                {screenOptions.visibleColumns.total && <th>Total</th>}
+                {screenOptions.visibleColumns.actions && <th>Actions</th>}
               </tr>
             </thead>
             <tbody>
-              {orders.map((order, index) => {
+              {paginatedOrders.map((order, index) => {
                 const uniqueKey = `${order.store_id}-${order.id}`;
                 const phone = order.billing?.phone?.replace(/\D/g, '');
                 const isDuplicate = phone && phoneNumbersCount[phone] > 1;
@@ -281,11 +302,20 @@ const OrdersTable = ({ orders, loading, onUpdateOrders, isUpdatingOrders, stores
                     isDuplicatePhone={isDuplicate}
                     isSelected={selectedRows.has(uniqueKey)}
                     onSelectionChange={handleSelectionChange}
+                    onUpdateOrderDetails={onUpdateOrderDetails}
+                    visibleColumns={screenOptions.visibleColumns}
                 />
               })}
             </tbody>
           </table>
         </div>
+        <Pagination 
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            itemsPerPage={screenOptions.itemsPerPage}
+            totalItems={orders.length}
+        />
       </Card>
     </>
   );

@@ -1,14 +1,30 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useToast } from '@/components/ui/use-toast';
 import { useStores } from '@/hooks/useStores';
 import { useOrders } from '@/hooks/useOrders';
-import { syncAllStores, exportOrdersToExcel, updateOrderStatusBatch } from '@/lib/woocommerce';
+import { syncAllStores, exportOrdersToExcel, updateOrderStatusBatch, updateOrderDetails } from '@/lib/woocommerce';
 import DashboardHeader from '@/components/DashboardHeader';
 import OrderStats from '@/components/OrderStats';
 import FilterControls from '@/components/FilterControls';
 import DashboardTabs from '@/components/DashboardTabs';
 import StoreConnectionModal from '@/components/StoreConnectionModal';
+
+const defaultScreenOptions = {
+    itemsPerPage: 20,
+    visibleColumns: {
+        order: true,
+        date: true,
+        status: true,
+        billing: true,
+        shipping: true,
+        items: true,
+        payment: true,
+        total: true,
+        actions: true,
+    }
+};
 
 const WooCommerceDashboard = () => {
   const { stores, addStore, updateStore, deleteStore, loadStoresFromStorage } = useStores();
@@ -17,8 +33,14 @@ const WooCommerceDashboard = () => {
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isUpdatingOrders, setIsUpdatingOrders] = useState(false);
+  const [isUpdatingDetails, setIsUpdatingDetails] = useState(false);
   const [showStoreModal, setShowStoreModal] = useState(false);
   const [editingStore, setEditingStore] = useState(null);
+  const [selectedRows, setSelectedRows] = useState(new Set());
+  const [screenOptions, setScreenOptions] = useState(() => {
+    const savedOptions = localStorage.getItem('screenOptions');
+    return savedOptions ? JSON.parse(savedOptions) : defaultScreenOptions;
+  });
   
   const { toast } = useToast();
 
@@ -33,7 +55,14 @@ const WooCommerceDashboard = () => {
 
   useEffect(() => {
     setFilteredOrders(sortedOrders);
+    setSelectedRows(new Set());
   }, [sortedOrders]);
+
+  const handleScreenOptionsChange = (key, value) => {
+    const newOptions = { ...screenOptions, [key]: value };
+    setScreenOptions(newOptions);
+    localStorage.setItem('screenOptions', JSON.stringify(newOptions));
+  };
 
   const handleOpenStoreModal = (store = null) => {
     setEditingStore(store);
@@ -67,7 +96,15 @@ const WooCommerceDashboard = () => {
   };
 
   const handleExport = () => {
-    exportOrdersToExcel(filteredOrders, toast);
+    let ordersToExport;
+    if (selectedRows.size > 0) {
+      const selectedOrderKeys = Array.from(selectedRows);
+      ordersToExport = sortedOrders.filter(order => selectedOrderKeys.includes(`${order.store_id}-${order.id}`));
+    } else {
+      ordersToExport = filteredOrders;
+    }
+    
+    exportOrdersToExcel(ordersToExport, screenOptions.visibleColumns, toast);
   };
 
   const handleUpdateOrders = async (ordersToUpdate, newStatus) => {
@@ -79,7 +116,6 @@ const WooCommerceDashboard = () => {
         toast,
     });
 
-    // Optimistically update local state
     const updatedOrderIds = new Set(ordersToUpdate.map(o => o.id));
     const newOrders = orders.map(order => {
         if (updatedOrderIds.has(order.id)) {
@@ -90,8 +126,38 @@ const WooCommerceDashboard = () => {
 
     setOrders(newOrders);
     saveOrdersToStorage(newOrders);
-
+    setSelectedRows(new Set());
     setIsUpdatingOrders(false);
+  };
+
+  const handleUpdateOrderDetails = async (storeId, orderId, data) => {
+    setIsUpdatingDetails(true);
+    try {
+        const updatedOrder = await updateOrderDetails({
+            storeId,
+            orderId,
+            data,
+            stores,
+            toast,
+        });
+
+        const newOrders = orders.map(order => {
+            if (order.id === orderId) {
+                // Merge existing order data with updated data
+                return { ...order, ...updatedOrder };
+            }
+            return order;
+        });
+
+        setOrders(newOrders);
+        saveOrdersToStorage(newOrders);
+    } catch(error) {
+        // Error is already toasted in the lib function
+        console.error("Update failed from dashboard:", error);
+        throw error; // Re-throw to inform the EditableField of failure
+    } finally {
+        setIsUpdatingDetails(false);
+    }
   };
 
   return (
@@ -118,6 +184,8 @@ const WooCommerceDashboard = () => {
             stores={stores}
             onFilterChange={setFilteredOrders}
             filteredCount={filteredOrders.length}
+            screenOptions={screenOptions}
+            onScreenOptionsChange={handleScreenOptionsChange}
           />
 
           <DashboardTabs
@@ -130,6 +198,11 @@ const WooCommerceDashboard = () => {
             onDeleteStore={deleteStore}
             onUpdateOrders={handleUpdateOrders}
             isUpdatingOrders={isUpdatingOrders}
+            onUpdateOrderDetails={handleUpdateOrderDetails}
+            isUpdatingDetails={isUpdatingDetails}
+            screenOptions={screenOptions}
+            selectedRows={selectedRows}
+            setSelectedRows={setSelectedRows}
           />
 
         </motion.div>

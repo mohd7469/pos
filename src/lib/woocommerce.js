@@ -1,3 +1,4 @@
+
 import { toast } from '@/components/ui/use-toast';
 import Papa from 'papaparse';
 
@@ -166,9 +167,64 @@ export const updateOrderStatusBatch = async ({ ordersToUpdate, newStatus, stores
     }
 };
 
+export const updateOrderDetails = async ({ storeId, orderId, data, stores, toast }) => {
+    const store = stores.find(s => s.id === storeId);
+    if (!store) {
+        toast({
+            title: 'Update Error',
+            description: `Could not find store with ID ${storeId}.`,
+            variant: 'destructive',
+        });
+        throw new Error('Store not found');
+    }
 
-export const exportOrdersToExcel = (filteredOrders, toast) => {
-    if (filteredOrders.length === 0) {
+    try {
+        const auth = btoa(`${store.consumerKey}:${store.consumerSecret}`);
+        const endpoint = `${store.url.replace(/\/$/, '')}/wp-json/wc/v3/orders/${orderId}`;
+        const proxyUrl = `${CORS_PROXY_URL}${endpoint}`;
+        
+        const response = await fetch(proxyUrl, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Basic ${auth}`,
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Order update request failed.');
+        }
+
+        const updatedOrder = await response.json();
+
+        toast({
+            title: 'Update Successful!',
+            description: `Order #${orderId} details have been updated.`,
+        });
+
+        return {
+            ...updatedOrder,
+            store_name: store.name,
+            store_id: store.id,
+            store_url: store.url
+        };
+
+    } catch (error) {
+        console.error(`Failed to update order for store ${store.name}:`, error);
+        toast({
+            title: `Update Failed for ${store.name}`,
+            description: error.message || 'An unknown error occurred.',
+            variant: 'destructive',
+        });
+        throw error;
+    }
+};
+
+export const exportOrdersToExcel = (ordersToExport, visibleColumns, toast) => {
+    if (!ordersToExport || ordersToExport.length === 0) {
       toast({
         title: "No Data to Export",
         description: "There are no orders to export.",
@@ -177,41 +233,53 @@ export const exportOrdersToExcel = (filteredOrders, toast) => {
       return;
     }
 
-    const dataToExport = filteredOrders.map(order => {
+    const dataToExport = ordersToExport.map(order => {
         const billing = order.billing || {};
         const shipping = order.shipping || {};
-        return {
-            'Order ID': order.id,
-            'Store': order.store_name,
-            'Date': new Date(order.date_created).toISOString(),
-            'Status': order.status,
-            'Billing First Name': billing.first_name,
-            'Billing Last Name': billing.last_name,
-            'Billing Company': billing.company,
-            'Billing Address 1': billing.address_1,
-            'Billing Address 2': billing.address_2,
-            'Billing City': billing.city,
-            'Billing Postcode': billing.postcode,
-            'Billing State': billing.state,
-            'Billing Country': billing.country,
-            'Billing Email': billing.email,
-            'Billing Phone': billing.phone,
-            'Shipping First Name': shipping.first_name,
-            'Shipping Last Name': shipping.last_name,
-            'Shipping Company': shipping.company,
-            'Shipping Address 1': shipping.address_1,
-            'Shipping Address 2': shipping.address_2,
-            'Shipping City': shipping.city,
-            'Shipping Postcode': shipping.postcode,
-            'Shipping State': shipping.state,
-            'Shipping Country': shipping.country,
-            'Total': order.total,
-            'Currency': order.currency,
-            'Payment Method': order.payment_method_title || order.payment_method,
-            'Customer Note': order.customer_note,
-            'Items Count': order.line_items?.length || 0,
-            'Items': order.line_items?.map(item => `${item.name} (Qty: ${item.quantity}, SKU: ${item.sku || 'N/A'})`).join('; ') || ''
-        };
+        const row = {};
+
+        if (visibleColumns.order) {
+            row['Order ID'] = order.id;
+            row['Store'] = order.store_name;
+        }
+        if (visibleColumns.date) row['Date'] = new Date(order.date_created).toISOString();
+        if (visibleColumns.status) row['Status'] = order.status;
+        if (visibleColumns.billing) {
+            row['Billing First Name'] = billing.first_name;
+            row['Billing Last Name'] = billing.last_name;
+            row['Billing Company'] = billing.company;
+            row['Billing Address 1'] = billing.address_1;
+            row['Billing Address 2'] = billing.address_2;
+            row['Billing City'] = billing.city;
+            row['Billing Postcode'] = billing.postcode;
+            row['Billing State'] = billing.state;
+            row['Billing Country'] = billing.country;
+            row['Billing Email'] = billing.email;
+            row['Billing Phone'] = billing.phone;
+        }
+        if (visibleColumns.shipping) {
+            row['Shipping First Name'] = shipping.first_name;
+            row['Shipping Last Name'] = shipping.last_name;
+            row['Shipping Company'] = shipping.company;
+            row['Shipping Address 1'] = shipping.address_1;
+            row['Shipping Address 2'] = shipping.address_2;
+            row['Shipping City'] = shipping.city;
+            row['Shipping Postcode'] = shipping.postcode;
+            row['Shipping State'] = shipping.state;
+            row['Shipping Country'] = shipping.country;
+        }
+        if (visibleColumns.total) {
+            row['Total'] = order.total;
+            row['Currency'] = order.currency;
+        }
+        if (visibleColumns.payment) row['Payment Method'] = order.payment_method_title || order.payment_method;
+        if (visibleColumns.items) {
+             row['Customer Note'] = order.customer_note;
+             row['Items Count'] = order.line_items?.length || 0;
+             row['Items'] = order.line_items?.map(item => `${item.name} (Qty: ${item.quantity}, SKU: ${item.sku || 'N/A'})`).join('; ') || '';
+        }
+        
+        return row;
     });
 
     const csv = Papa.unparse(dataToExport);
@@ -228,6 +296,6 @@ export const exportOrdersToExcel = (filteredOrders, toast) => {
 
     toast({
       title: "Export Successful!",
-      description: `Exported ${filteredOrders.length} orders to CSV file.`
+      description: `Exported ${ordersToExport.length} orders to CSV file.`
     });
   };

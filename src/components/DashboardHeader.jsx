@@ -43,7 +43,7 @@ const DashboardHeader = ({ onAddStore, onSync, onExport, loading, storesCount, o
             variant="outline"
           >
             <Download className="h-4 w-4 mr-2" />
-            Export Excel
+            Export
           </Button>
         </div>
       </div>
