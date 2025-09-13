@@ -15,7 +15,7 @@ const OrderStats = ({ orders }) => {
     const currencies = [...new Set(orders.map(o => o.currency))];
     const revenueString = currencies.length === 1 && currencies[0] 
       ? totalRevenue.toLocaleString('en-US', { style: 'currency', currency: currencies[0], minimumFractionDigits: 2, maximumFractionDigits: 2 })
-      : `${totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (currency)`;
+      : `${totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} 💸`;
 
     return {
       totalOrders,

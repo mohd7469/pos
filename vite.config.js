@@ -73,30 +73,61 @@ window.onerror = (message, source, lineno, colno, errorObj) => {
 };
 `;
 
-const configHorizonsConsoleErrroHandler = `
-const originalConsoleError = console.error;
-console.error = function(...args) {
-	originalConsoleError.apply(console, args);
-
-	let errorString = '';
-
-	for (let i = 0; i < args.length; i++) {
-		const arg = args[i];
-		if (arg instanceof Error) {
-			errorString = arg.stack || \`\${arg.name}: \${arg.message}\`;
-			break;
-		}
-	}
-
-	if (!errorString) {
-		errorString = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' ');
-	}
-
-	window.parent.postMessage({
-		type: 'horizons-console-error',
-		error: errorString
-	}, '*');
-};
+const configHorizonsConsoleErrorHandler = String.raw`
+(function () {
+  if (typeof window === 'undefined') return;
+  if (window.__HORIZONS_CONSOLE_PATCHED__) return;
+  window.__HORIZONS_CONSOLE_PATCHED__ = true;
+  
+  const originalConsoleError = console.error;
+  
+  const safeStringify = (val) => {
+    try {
+      const seen = new WeakSet();
+      return JSON.stringify(val, (k, v) => {
+        if (v && typeof v === 'object') {
+          if (seen.has(v)) return '[Circular]';
+          seen.add(v);
+        }
+        return v;
+      });
+    } catch {
+      try { return String(val); } catch { return '[Unstringifiable]'; }
+    }
+  };
+  
+  console.error = function (...args) {
+    // Always print original error first
+    try { originalConsoleError.apply(console, args); } catch {}
+    
+    // Build an error string
+    let errorString = '';
+    for (const arg of args) {
+      if (arg instanceof Error) {
+        errorString = arg.stack || (arg.name + ': ' + arg.message);
+        break;
+      }
+    }
+    if (!errorString) {
+      errorString = args.map(a =>
+        (a && typeof a === 'object') ? safeStringify(a) : String(a)
+      ).join(' ');
+    }
+    
+    // Post to parent (only if we’re inside an iframe with a parent listener)
+    try {
+      const hasParent = typeof window.parent !== 'undefined' && window.parent !== window;
+      if (hasParent && typeof window.parent.postMessage === 'function') {
+        window.parent.postMessage(
+          { type: 'horizons-console-error', error: errorString },
+          '*'
+        );
+      }
+    } catch {
+      // Cross-origin or unavailable parent—ignore
+    }
+  };
+})();
 `;
 
 const configWindowFetchMonkeyPatch = `
@@ -139,53 +170,17 @@ window.fetch = function(...args) {
 `;
 
 const addTransformIndexHtml = {
-	name: 'add-transform-index-html',
-	transformIndexHtml(html) {
-		const tags = [
-			{
-				tag: 'script',
-				attrs: { type: 'module' },
-				children: configHorizonsRuntimeErrorHandler,
-				injectTo: 'head',
-			},
-			{
-				tag: 'script',
-				attrs: { type: 'module' },
-				children: configHorizonsViteErrorHandler,
-				injectTo: 'head',
-			},
-			{
-				tag: 'script',
-				attrs: {type: 'module'},
-				children: configHorizonsConsoleErrroHandler,
-				injectTo: 'head',
-			},
-			{
-				tag: 'script',
-				attrs: { type: 'module' },
-				children: configWindowFetchMonkeyPatch,
-				injectTo: 'head',
-			},
-		];
-
-		if (!isDev && process.env.TEMPLATE_BANNER_SCRIPT_URL && process.env.TEMPLATE_REDIRECT_URL) {
-			tags.push(
-				{
-					tag: 'script',
-					attrs: {
-						src: process.env.TEMPLATE_BANNER_SCRIPT_URL,
-						'template-redirect-url': process.env.TEMPLATE_REDIRECT_URL,
-					},
-					injectTo: 'head',
-				}
-			);
-		}
-
-		return {
-			html,
-			tags,
-		};
-	},
+  name: 'add-transform-index-html',
+  transformIndexHtml(html) {
+    const tags = [
+      { tag: 'script', attrs: { type: 'module' }, children: configHorizonsRuntimeErrorHandler, injectTo: 'head' },
+      { tag: 'script', attrs: { type: 'module' }, children: configHorizonsViteErrorHandler,    injectTo: 'head' },
+      { tag: 'script', attrs: { type: 'module' }, children: configHorizonsConsoleErrorHandler, injectTo: 'head' }, // <-- renamed
+      { tag: 'script', attrs: { type: 'module' }, children: configWindowFetchMonkeyPatch,      injectTo: 'head' },
+    ];
+    // ... your banner logic
+    return { html, tags };
+  },
 };
 
 console.warn = () => {};

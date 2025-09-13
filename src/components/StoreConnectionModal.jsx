@@ -90,7 +90,7 @@ const StoreConnectionModal = ({ isOpen, onClose, onSaveStore, store }) => {
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
                   <Store className="h-6 w-6 text-blue-600" />
-                  <h2 className="text-xl font-semibold">{isEditing ? 'Edit Store' : 'Add WooCommerce Store'}</h2>
+                  <h2 className="text-xl font-semibold">{isEditing ? 'Edit Store' : 'Add Store'}</h2>
                 </div>
                 <Button variant="ghost" size="sm" onClick={onClose}>
                   <X className="h-4 w-4" />
