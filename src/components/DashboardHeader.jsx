@@ -15,7 +15,7 @@ const DashboardHeader = ({ onAddStore, onSync, onExport, loading, storesCount, o
         <div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
             <Store className="h-8 w-8 text-blue-600" />
-            CSR WooSync Dashboard
+            CSR G-BOX Dashboard
           </h1>
           <p className="text-gray-600 mt-2">
             Manage orders from all your WooCommerce stores in one place
