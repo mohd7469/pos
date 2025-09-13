@@ -73,6 +73,10 @@ const WooCommerceDashboard = () => {
     window.open("https://csr.pharmilow.com", "_blank");
   };
   
+  const handleOpenWhatsapp = () => {
+    window.open("https://wa.pharmilow.com", "_blank");
+  };
+  
   const handleCloseStoreModal = () => {
     setEditingStore(null);
     setShowStoreModal(false);
@@ -169,6 +173,7 @@ const WooCommerceDashboard = () => {
       <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <DashboardHeader
           openCSR={() => handleOpenCSR()}
+          openWhatsapp={() => handleOpenWhatsapp()}
           onAddStore={() => handleOpenStoreModal()}
           onSync={handleSync}
           onExport={handleExport}

@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Plus, Download, RefreshCw, Store, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-const DashboardHeader = ({ openCSR, onAddStore, onSync, onExport, loading, storesCount, ordersCount }) => {
+const DashboardHeader = ({ openCSR, openWhatsapp, onAddStore, onSync, onExport, loading, storesCount, ordersCount }) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: -20 }}
@@ -15,13 +15,21 @@ const DashboardHeader = ({ openCSR, onAddStore, onSync, onExport, loading, store
         <div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
             <Store className="h-8 w-8 text-blue-600" />
-            Admin WooSync Dashboard
+            G-BOX Admin Dashboard
           </h1>
           <p className="text-gray-600 mt-2">
             Manage orders from all your WooCommerce stores in one place
           </p>
         </div>
         <div className="flex gap-3">
+          <Button
+            onClick={openWhatsapp}
+            variant="outline"
+          >
+            <ExternalLink className="h-4 w-4 mr-2" />
+            Whatsapp Parser
+          </Button>
+          
           <Button
             onClick={openCSR}
             variant="outline"
