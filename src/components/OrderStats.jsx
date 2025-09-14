@@ -35,13 +35,13 @@ const OrderStats = ({ orders }) => {
       color: 'text-blue-600',
       bgColor: 'bg-blue-50'
     },
-    {
+    /*{
       title: 'Total Revenue',
       value: stats.revenueString,
       icon: DollarSign,
       color: 'text-green-600',
       bgColor: 'bg-green-50'
-    },
+    },*/
     {
       title: 'Pending',
       value: stats.pendingOrders.toLocaleString(),
