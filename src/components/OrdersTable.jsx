@@ -139,15 +139,23 @@ const OrderRow = ({ order, index, isDuplicatePhone, isSelected, onSelectionChang
         <ul className="space-y-1">
           {order.line_items?.map(item => (
             <li key={item.id}>
-              ({item.quantity}x)
-              <a
-                href={`${order.store_url}/?p=${item.product_id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="ml-1 text-blue-600 hover:underline inline-flex items-center gap-1"
-              >
-                {item.name} <ExternalLink className="h-3 w-3" />
-              </a>
+              {order.store_name.toLowerCase() === "wtsp" ? (
+                // ✅ Show last_name
+                <span>{order.billing.last_name}</span>
+              ) : (
+                // ✅ Show quantity + link
+                <>
+                  {item.quantity}x
+                  <a
+                    href={`${order.store_url}/?p=${item.product_id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ml-1 text-blue-600 hover:underline inline-flex items-center gap-1"
+                  >
+                    {item.name} <ExternalLink className="h-3 w-3" />
+                  </a>
+                </>
+              )}
             </li>
           ))}
         </ul>

@@ -280,7 +280,14 @@ export const exportOrdersToExcel = (ordersToExport, visibleColumns, toast) => {
         if (visibleColumns.items) {
              row['Customer Note'] = order.customer_note;
              row['Items Count'] = order.line_items?.length || 0;
-             row['Items'] = order.line_items?.map(item => `(Qty: ${item.quantity})-${item.name}`).join('\n') || '';
+          
+             if(order.store_name.toLowerCase() === "wtsp") {
+               // ✅ Show last_name
+               row['Items'] = order.billing.last_name || '';
+             } else {
+               // ✅ Show quantity
+               row['Items'] = order.line_items?.map(item => `(Qty: ${item.quantity})-${item.name}`).join('\n') || '';
+             }
         }
         
         return row;
