@@ -280,7 +280,7 @@ export const exportOrdersToExcel = (ordersToExport, visibleColumns, toast) => {
         if (visibleColumns.items) {
              row['Customer Note'] = order.customer_note;
              row['Items Count'] = order.line_items?.length || 0;
-             row['Items'] = order.line_items?.map(item => `${item.name} (Qty: ${item.quantity}, SKU: ${item.sku || 'N/A'})`).join('; ') || '';
+             row['Items'] = order.line_items?.map(item => `(Qty: ${item.quantity})-${item.name}`).join('\n') || '';
         }
         
         return row;
