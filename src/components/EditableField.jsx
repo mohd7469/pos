@@ -3,7 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Check, X, Edit, Loader2, PhoneOutgoing } from 'lucide-react';
 
-const EditableField = ({ initialValue, onSave, fieldName, orderId, isDuplicatePhone }) => {
+const EditableField = ({ className = "", initialValue, onSave, fieldName, orderId, isDuplicatePhone }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [value, setValue] = useState(initialValue);
     const [isSaving, setIsSaving] = useState(false);
@@ -72,7 +72,7 @@ const EditableField = ({ initialValue, onSave, fieldName, orderId, isDuplicatePh
     return (
         <div 
             onClick={() => setIsEditing(true)} 
-            className={`group relative cursor-pointer min-h-[20px] rounded hover:bg-slate-100 p-1 transition-colors flex items-center justify-between ${isDuplicatePhone ? 'text-red-600' : ''}`}
+            className={`${className} group relative cursor-pointer min-h-[20px] rounded hover:bg-slate-100 p-1 transition-colors flex items-center justify-between ${isDuplicatePhone ? 'text-red-600' : ''}`}
         >
             <span>{value || <span className="text-gray-400">N/A</span>}</span>
             <div className="flex items-center">

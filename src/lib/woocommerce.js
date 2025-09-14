@@ -239,7 +239,9 @@ export const exportOrdersToExcel = (ordersToExport, visibleColumns, toast) => {
         const city = order.meta_data.find(item => item.key === 'billing_area')?.value || 'N/A';
         
         const row = {};
-
+      
+        row['Ref'] = `${order.store_name.toUpperCase().slice(0, 3)}${order.id}`;
+        
         if (visibleColumns.order) {
             row['Order ID'] = order.id;
             row['Store'] = order.store_name;
@@ -262,7 +264,7 @@ export const exportOrdersToExcel = (ordersToExport, visibleColumns, toast) => {
         if (visibleColumns.shipping) {
             row['Shipping First Name'] = shipping.first_name;
             row['Shipping Last Name'] = shipping.last_name;
-            row['Shipping Company'] = shipping.company;
+            row['Shipping Company'] = shipping.company || city;
             row['Shipping Address 1'] = shipping.address_1;
             row['Shipping Address 2'] = shipping.address_2;
             row['Shipping City'] = shipping.city;

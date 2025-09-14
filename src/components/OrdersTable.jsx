@@ -52,25 +52,25 @@ const OrderRow = ({ order, index, isDuplicatePhone, isSelected, onSelectionChang
     const city = meta_data.find(item => item.key === 'billing_area')?.value || 'N/A';
     
     return (
-      <div className="space-y-1">
+      <div className="">
         <div className="flex gap-1">
-            <EditableField initialValue={address.first_name} onSave={handleFieldSave} fieldName="first_name" orderId={order.id} />
-            <EditableField initialValue={address.last_name} onSave={handleFieldSave} fieldName="last_name" orderId={order.id} />
+            {address.first_name && <EditableField className={"p-0"} initialValue={address.first_name} onSave={handleFieldSave} fieldName="first_name" orderId={order.id} />}
+            {address.last_name && <EditableField className={"p-0"} initialValue={address.last_name} onSave={handleFieldSave} fieldName="last_name" orderId={order.id} />}
         </div>
-        <EditableField initialValue={address.company} onSave={handleFieldSave} fieldName="company" orderId={order.id} />
-        <EditableField initialValue={address.address_1} onSave={handleFieldSave} fieldName="address_1" orderId={order.id} />
-        <EditableField initialValue={address.address_2} onSave={handleFieldSave} fieldName="address_2" orderId={order.id} />
+        {address.company && <EditableField initialValue={address.company} onSave={handleFieldSave} fieldName="company" orderId={order.id} />}
+        <EditableField className={"p-0"} initialValue={address.address_1} onSave={handleFieldSave} fieldName="address_1" orderId={order.id} />
+        <EditableField className={"p-0"} initialValue={address.address_2} onSave={handleFieldSave} fieldName="address_2" orderId={order.id} />
         <div className="flex gap-1">
-            <EditableField initialValue={address.city || city} onSave={handleFieldSave} fieldName="city" orderId={order.id} />
-            <EditableField initialValue={address.state} onSave={handleFieldSave} fieldName="state" orderId={order.id} />
+            <EditableField className={"p-0"} initialValue={address.city || city} onSave={handleFieldSave} fieldName="city" orderId={order.id} />
+            {address.state && <EditableField className={"p-0"} initialValue={address.state} onSave={handleFieldSave} fieldName="state" orderId={order.id} />}
         </div>
         <div className="flex gap-1">
-             <EditableField initialValue={address.postcode} onSave={handleFieldSave} fieldName="postcode" orderId={order.id} />
-             <EditableField initialValue={address.country} onSave={handleFieldSave} fieldName="country" orderId={order.id} />
+            {address.postcode && <EditableField className={"p-0"} initialValue={address.postcode} onSave={handleFieldSave} fieldName="postcode" orderId={order.id} />}
+            {/*<EditableField className={"p-0"} initialValue={address.country} onSave={handleFieldSave} fieldName="country" orderId={order.id} />*/}
         </div>
-        <EditableField initialValue={address.email} onSave={handleFieldSave} fieldName="email" orderId={order.id} />
-        <EditableField initialValue={address.phone} onSave={handleFieldSave} fieldName="phone" orderId={order.id} isDuplicatePhone={isDuplicatePhone} />
-        <EditableField initialValue={city} />
+        <EditableField className={"p-0"} initialValue={address.email} onSave={handleFieldSave} fieldName="email" orderId={order.id} />
+        <EditableField className={"p-0"} initialValue={address.phone} onSave={handleFieldSave} fieldName="phone" orderId={order.id} isDuplicatePhone={isDuplicatePhone} />
+        <EditableField className={"p-0"} initialValue={city} />
       </div>
     );
   };
