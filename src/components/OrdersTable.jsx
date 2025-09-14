@@ -179,7 +179,7 @@ const OrderRow = ({ order, index, isDuplicatePhone, isSelected, onSelectionChang
           <Button
             size="sm"
             variant="outline"
-            onClick={() => window.open(`${order.store_url}/wp-admin/admin.php?page=wc-orders&action=edit&id=${order.id}`, '_blank')}
+            onClick={() => window.open(`${order.store_url}wp-admin/admin.php?page=wc-orders&action=edit&id=${order.id}`, '_blank')}
             title="View in WP Admin"
           >
             <Eye className="h-3 w-3" />
