@@ -7,7 +7,8 @@ const OrderStats = ({ orders }) => {
   const stats = React.useMemo(() => {
     const totalOrders = orders.length;
     const totalRevenue = orders.reduce((sum, order) => sum + parseFloat(order.total || 0), 0);
-    const pendingOrders = orders.filter(order => order.status === 'pending').length;
+    // const pendingOrders = orders.filter(order => order.status === 'pending').length;
+    const onHoldOrders = orders.filter(order => order.status === 'on-hold').length;
     const processingOrders = orders.filter(order => order.status === 'processing').length;
     const completedOrders = orders.filter(order => order.status === 'completed').length;
     const cancelledOrders = orders.filter(order => ['cancelled', 'failed', 'refunded'].includes(order.status)).length;
@@ -20,7 +21,8 @@ const OrderStats = ({ orders }) => {
     return {
       totalOrders,
       revenueString,
-      pendingOrders,
+      // pendingOrders,
+      onHoldOrders,
       processingOrders,
       completedOrders,
       cancelledOrders
@@ -42,9 +44,16 @@ const OrderStats = ({ orders }) => {
       color: 'text-green-600',
       bgColor: 'bg-green-50'
     },*/
-    {
+    /*{
       title: 'Pending',
       value: stats.pendingOrders.toLocaleString(),
+      icon: Clock,
+      color: 'text-yellow-600',
+      bgColor: 'bg-yellow-50'
+    },*/
+    {
+      title: 'On Hold',
+      value: stats.onHoldOrders.toLocaleString(),
       icon: Clock,
       color: 'text-yellow-600',
       bgColor: 'bg-yellow-50'
