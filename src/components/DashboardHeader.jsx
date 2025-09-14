@@ -1,15 +1,30 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Download, RefreshCw, Store, ExternalLink } from 'lucide-react';
 import { Coins } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+
+import { ChevronDown } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 import {
   Popover,
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
 
-const DashboardHeader = ({ openCSR, openWhatsapp, onAddStore, onSync, onExport, loading, storesCount, ordersCount, filteredOrders }) => {
+const DashboardHeader = ({ openCSR, openWhatsapp, onAddStore, onSync, onExport, loading, storesCount, ordersCount, filteredOrders, stores, setStoreFilter }) => {
+  const storeOptions = useMemo(() => [
+    { value: 'all', name: 'All Stores' },
+    ...stores
+  ], [stores]);
+  
+  console.log(storeOptions);
+  
   const totalRevenue = filteredOrders.reduce((sum, order) => sum + parseFloat(order.total || 0), 0);
   const currencies = [...new Set(filteredOrders.map(o => o.currency))];
   const revenueString = currencies.length === 1 && currencies[0]
@@ -77,14 +92,45 @@ const DashboardHeader = ({ openCSR, openWhatsapp, onAddStore, onSync, onExport, 
             <Plus className="h-4 w-4 mr-2" />
             Add Store
           </Button>
-          <Button
-            onClick={() => onSync()}
-            disabled={loading || storesCount === 0}
-            variant="outline"
-          >
-            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-            Sync Orders
-          </Button>
+          
+          <div className="inline-flex">
+            {/* Main action */}
+            <Button
+              onClick={onSync}
+              disabled={loading || storesCount === 0}
+              variant="outline"
+              className="rounded-r-none"
+            >
+              <RefreshCw
+                className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`}
+              />
+              Sync Orders
+            </Button>
+            
+            {/* Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="rounded-l-none px-2 focus-visible:ring-0 focus-visible:outline-none"
+                  disabled={loading || storesCount === 0}
+                >
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {storeOptions.map((store, idx) => (
+                  <DropdownMenuItem
+                    key={idx}
+                    onClick={() => onSync(store.id)}
+                  >
+                    {store.name}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          
           <Button
             onClick={onExport}
             disabled={ordersCount === 0}

@@ -180,6 +180,7 @@ const WooCommerceDashboard = () => {
           onSync={handleSync}
           onExport={handleExport}
           loading={loading}
+          stores={stores}
           storesCount={stores.length}
           ordersCount={filteredOrders.length}
           filteredOrders={filteredOrders}
