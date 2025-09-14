@@ -236,6 +236,8 @@ export const exportOrdersToExcel = (ordersToExport, visibleColumns, toast) => {
     const dataToExport = ordersToExport.map(order => {
         const billing = order.billing || {};
         const shipping = order.shipping || {};
+        const city = order.meta_data.find(item => item.key === 'billing_area')?.value || 'N/A';
+        
         const row = {};
 
         if (visibleColumns.order) {
@@ -247,7 +249,7 @@ export const exportOrdersToExcel = (ordersToExport, visibleColumns, toast) => {
         if (visibleColumns.billing) {
             row['Billing First Name'] = billing.first_name;
             row['Billing Last Name'] = billing.last_name;
-            row['Billing Company'] = billing.company;
+            row['Billing Company'] = billing.company || city;
             row['Billing Address 1'] = billing.address_1;
             row['Billing Address 2'] = billing.address_2;
             row['Billing City'] = billing.city;
@@ -256,6 +258,8 @@ export const exportOrdersToExcel = (ordersToExport, visibleColumns, toast) => {
             row['Billing Country'] = billing.country;
             row['Billing Email'] = billing.email;
             row['Billing Phone'] = billing.phone;
+          
+            row['Billing'] = `${billing.first_name} ${billing.last_name}\n${billing.company}\n${billing.address_1}\n${billing.address_2}\n${city}\n${billing.postcode}\n${billing.state}\n${billing.country}\n${billing.email}\n${billing.phone}`;
         }
         if (visibleColumns.shipping) {
             row['Shipping First Name'] = shipping.first_name;
@@ -267,6 +271,8 @@ export const exportOrdersToExcel = (ordersToExport, visibleColumns, toast) => {
             row['Shipping Postcode'] = shipping.postcode;
             row['Shipping State'] = shipping.state;
             row['Shipping Country'] = shipping.country;
+          
+            row['Shipping'] = `${shipping.first_name} ${shipping.last_name}\n${shipping.company}\n${shipping.address_1}\n${shipping.address_2}\n${shipping.city}\n${shipping.postcode}\n${shipping.state}\n${shipping.country}\n${shipping.city}`;
         }
         if (visibleColumns.total) {
             row['Total'] = order.total;
