@@ -46,8 +46,11 @@ const OrderRow = ({ order, index, isDuplicatePhone, isSelected, onSelectionChang
     return onUpdateOrderDetails(order.store_id, orderId, data);
   };
 
-  const BillingAddress = ({ address }) => {
+  const BillingAddress = ({ address, meta_data }) => {
     if (!address) return 'N/A';
+    
+    const city = meta_data.find(item => item.key === 'billing_area')?.value || 'N/A';
+    
     return (
       <div className="space-y-1">
         <div className="flex gap-1">
@@ -67,19 +70,25 @@ const OrderRow = ({ order, index, isDuplicatePhone, isSelected, onSelectionChang
         </div>
         <EditableField initialValue={address.email} onSave={handleFieldSave} fieldName="email" orderId={order.id} />
         <EditableField initialValue={address.phone} onSave={handleFieldSave} fieldName="phone" orderId={order.id} isDuplicatePhone={isDuplicatePhone} />
+        <EditableField initialValue={city} />
       </div>
     );
   };
 
-   const ShippingAddress = ({ address }) => {
+   const ShippingAddress = ({ address, meta_data, billing, customer_note = 'N/A' }) => {
     if (!address || Object.keys(address).length === 0) return 'N/A';
+    
+    const city = meta_data.find(item => item.key === 'billing_area')?.value || 'N/A';
+    const phone = billing?.phone || 'N/A';
+    
     const parts = [
       `${address.first_name || ''} ${address.last_name || ''}`.trim(),
-      address.company,
       address.address_1,
       address.address_2,
       `${address.city || ''}, ${address.state || ''} ${address.postcode || ''}`.trim(),
-      address.country,
+      phone,
+      city,
+      customer_note
     ].filter(Boolean).filter(p => p.trim() !== ',');
     return (
       <div>
@@ -123,9 +132,9 @@ const OrderRow = ({ order, index, isDuplicatePhone, isSelected, onSelectionChang
         </Badge>
       </td>}
       {visibleColumns.billing && <td className="text-xs">
-          <BillingAddress address={order.billing} />
+          <BillingAddress address={order.billing} meta_data={order.meta_data} />
       </td>}
-      {visibleColumns.shipping && <td className="text-xs"><ShippingAddress address={order.shipping} /></td>}
+      {visibleColumns.shipping && <td className="text-xs"><ShippingAddress address={order.shipping} meta_data={order.meta_data} billing={order.billing} customer_note={order.customer_note} /></td>}
       {visibleColumns.items && <td className="text-xs">
         <ul className="space-y-1">
           {order.line_items?.map(item => (
