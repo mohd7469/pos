@@ -258,8 +258,6 @@ export const exportOrdersToExcel = (ordersToExport, visibleColumns, toast) => {
             row['Billing Country'] = billing.country;
             row['Billing Email'] = billing.email;
             row['Billing Phone'] = billing.phone;
-          
-            row['Billing'] = `${billing.first_name} ${billing.last_name}\n${billing.company}\n${billing.address_1}\n${billing.address_2}\n${city}\n${billing.postcode}\n${billing.state}\n${billing.country}\n${billing.email}\n${billing.phone}`;
         }
         if (visibleColumns.shipping) {
             row['Shipping First Name'] = shipping.first_name;
@@ -271,8 +269,6 @@ export const exportOrdersToExcel = (ordersToExport, visibleColumns, toast) => {
             row['Shipping Postcode'] = shipping.postcode;
             row['Shipping State'] = shipping.state;
             row['Shipping Country'] = shipping.country;
-          
-            row['Shipping'] = `${shipping.first_name} ${shipping.last_name}\n${shipping.company}\n${shipping.address_1}\n${shipping.address_2}\n${shipping.city}\n${shipping.postcode}\n${shipping.state}\n${shipping.country}\n${shipping.city}`;
         }
         if (visibleColumns.total) {
             row['Total'] = order.total;
