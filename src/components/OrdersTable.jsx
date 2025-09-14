@@ -61,7 +61,7 @@ const OrderRow = ({ order, index, isDuplicatePhone, isSelected, onSelectionChang
         <EditableField initialValue={address.address_1} onSave={handleFieldSave} fieldName="address_1" orderId={order.id} />
         <EditableField initialValue={address.address_2} onSave={handleFieldSave} fieldName="address_2" orderId={order.id} />
         <div className="flex gap-1">
-            <EditableField initialValue={address.city} onSave={handleFieldSave} fieldName="city" orderId={order.id} />
+            <EditableField initialValue={address.city || city} onSave={handleFieldSave} fieldName="city" orderId={order.id} />
             <EditableField initialValue={address.state} onSave={handleFieldSave} fieldName="state" orderId={order.id} />
         </div>
         <div className="flex gap-1">
