@@ -69,7 +69,8 @@ const OrderRow = ({ order, index, isDuplicatePhone, isSelected, onSelectionChang
             {/*<EditableField className={"p-0"} initialValue={address.country} onSave={handleFieldSave} fieldName="country" orderId={order.id} />*/}
         </div>
         <EditableField className={"p-0"} initialValue={address.email} onSave={handleFieldSave} fieldName="email" orderId={order.id} />
-        <EditableField className={"p-0"} initialValue={address.phone} onSave={handleFieldSave} fieldName="phone" orderId={order.id} isDuplicatePhone={isDuplicatePhone} />
+        {/*<EditableField className={"p-0"} initialValue={address.phone} onSave={handleFieldSave} fieldName="phone" orderId={order.id} isDuplicatePhone={isDuplicatePhone} />*/}
+        <div className={"p-0"}>{address.phone}</div>
         <EditableField className={"p-0"} initialValue={city} />
       </div>
     );
