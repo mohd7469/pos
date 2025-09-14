@@ -1,9 +1,23 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Download, RefreshCw, Store, ExternalLink } from 'lucide-react';
+import { Coins } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
 
-const DashboardHeader = ({ openCSR, openWhatsapp, onAddStore, onSync, onExport, loading, storesCount, ordersCount }) => {
+const DashboardHeader = ({ openCSR, openWhatsapp, onAddStore, onSync, onExport, loading, storesCount, ordersCount, filteredOrders }) => {
+  const totalRevenue = filteredOrders.reduce((sum, order) => sum + parseFloat(order.total || 0), 0);
+  const currencies = [...new Set(filteredOrders.map(o => o.currency))];
+  const revenueString = currencies.length === 1 && currencies[0]
+    ? totalRevenue.toLocaleString('en-US', { style: 'currency', currency: currencies[0], minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    : `${totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} 💸`;
+  
+  console.log('revenueString', revenueString);
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: -20 }}
@@ -22,6 +36,24 @@ const DashboardHeader = ({ openCSR, openWhatsapp, onAddStore, onSync, onExport, 
           </p>
         </div>
         <div className="flex gap-3">
+          <Popover>
+            {/* Trigger Button */}
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="flex items-center">
+                <Coins className="h-4 w-4 mr-2" /> Total Revenue
+              </Button>
+            </PopoverTrigger>
+            
+            {/* Popover Content */}
+            <PopoverContent className="w-full">
+              <div className="space-y-2">
+                <p className="flex items-center font-bold text-green-800">
+                  {revenueString}
+                </p>
+              </div>
+            </PopoverContent>
+          </Popover>
+          
           <Button
             onClick={openWhatsapp}
             variant="outline"

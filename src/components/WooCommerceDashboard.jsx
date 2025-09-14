@@ -180,6 +180,7 @@ const WooCommerceDashboard = () => {
           loading={loading}
           storesCount={stores.length}
           ordersCount={filteredOrders.length}
+          filteredOrders={filteredOrders}
         />
 
         <OrderStats orders={filteredOrders} />
