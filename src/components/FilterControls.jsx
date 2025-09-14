@@ -11,9 +11,8 @@ import {
 } from "@/components/ui/select";
 import ScreenOptions from '@/components/ScreenOptions';
 
-const FilterControls = ({ orders, stores, onFilterChange, filteredCount, screenOptions, onScreenOptionsChange }) => {
+const FilterControls = ({ orders, stores, onFilterChange, filteredCount, screenOptions, onScreenOptionsChange, statusFilter, setStatusFilter }) => {
     const [searchTerm, setSearchTerm] = useState('');
-    const [statusFilter, setStatusFilter] = useState('all');
     const [storeFilter, setStoreFilter] = useState('all');
     const [dateFilter, setDateFilter] = useState('all');
 
@@ -25,7 +24,7 @@ const FilterControls = ({ orders, stores, onFilterChange, filteredCount, screenO
         { value: 'completed', label: 'Completed' },
         { value: 'cancelled', label: 'Cancelled' },
         { value: 'refunded', label: 'Refunded' },
-        { value: 'failed', label: 'Failed' },
+        { value: 'failed', label: 'Cancelled/Failed' },
     ], []);
 
     const dateFilters = useMemo(() => [

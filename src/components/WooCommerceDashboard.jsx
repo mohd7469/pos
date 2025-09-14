@@ -30,6 +30,8 @@ const WooCommerceDashboard = () => {
   const { stores, addStore, updateStore, deleteStore, loadStoresFromStorage } = useStores();
   const { orders, setOrders, loadOrdersFromStorage, saveOrdersToStorage } = useOrders();
   
+  const [statusFilter, setStatusFilter] = useState('all');
+  
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isUpdatingOrders, setIsUpdatingOrders] = useState(false);
@@ -183,7 +185,7 @@ const WooCommerceDashboard = () => {
           filteredOrders={filteredOrders}
         />
 
-        <OrderStats orders={filteredOrders} />
+        <OrderStats orders={filteredOrders} setStatusFilter={setStatusFilter} />
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -197,6 +199,8 @@ const WooCommerceDashboard = () => {
             filteredCount={filteredOrders.length}
             screenOptions={screenOptions}
             onScreenOptionsChange={handleScreenOptionsChange}
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
           />
 
           <DashboardTabs

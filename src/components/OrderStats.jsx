@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { ShoppingCart, DollarSign, Clock, CheckCircle, XCircle, Package } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 
-const OrderStats = ({ orders }) => {
+const OrderStats = ({ orders, setStatusFilter }) => {
   const stats = React.useMemo(() => {
     const totalOrders = orders.length;
     const totalRevenue = orders.reduce((sum, order) => sum + parseFloat(order.total || 0), 0);
@@ -80,7 +80,31 @@ const OrderStats = ({ orders }) => {
       bgColor: 'bg-red-50'
     }
   ];
-
+  
+  const handleStatsClick = ((stat) => {
+    // picked from FilterControls.jsx
+    const orderStatuses = [
+      { value: 'all', label: 'All Statuses' },
+      { value: 'pending', label: 'Pending' },
+      { value: 'processing', label: 'Processing' },
+      { value: 'on-hold', label: 'On Hold' },
+      { value: 'completed', label: 'Completed' },
+      { value: 'cancelled', label: 'Cancelled' },
+      { value: 'refunded', label: 'Refunded' },
+      { value: 'failed', label: 'Cancelled/Failed' },
+    ];
+    
+    const match = orderStatuses.find(
+      (s) => s.label.toLowerCase() === stat.title.toLowerCase()
+    );
+    if (match) {
+      setStatusFilter(match.value); // set by value (e.g., "completed")
+    } else {
+      setStatusFilter('all');
+      console.warn(`No matched for "${stat.title}", setting default as all..`);
+    }
+  })
+  
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
       {statCards.map((stat, index) => (
@@ -89,8 +113,9 @@ const OrderStats = ({ orders }) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: index * 0.1 }}
+          onClick={() => handleStatsClick(stat)}
         >
-          <Card className="p-4 hover:shadow-md transition-shadow h-full">
+          <Card className="p-4 hover:shadow-md transition-shadow h-full cursor-pointer">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600 mb-1">
