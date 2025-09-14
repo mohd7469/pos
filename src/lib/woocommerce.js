@@ -2,7 +2,7 @@
 import { toast } from '@/components/ui/use-toast';
 import Papa from 'papaparse';
 
-const CORS_PROXY_URL = 'https://app-cors.vercel.app/';
+const CORS_PROXY_URL = 'https://app-cors.vercel.app/api/proxy?url=';
 
 export const testStoreConnection = async (storeData) => {
   const auth = btoa(`${storeData.consumerKey}:${storeData.consumerSecret}`);
