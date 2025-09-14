@@ -10,6 +10,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import ScreenOptions from '@/components/ScreenOptions';
+import { Button } from "@/components/ui/button.jsx";
 
 const FilterControls = ({ orders, stores, onFilterChange, filteredCount, screenOptions, onScreenOptionsChange, statusFilter, setStatusFilter }) => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -38,7 +39,13 @@ const FilterControls = ({ orders, stores, onFilterChange, filteredCount, screenO
         { value: 'all', name: 'All Stores' },
         ...stores
     ], [stores]);
-
+  
+    const reset = () => {
+      setStatusFilter('all');
+      setStoreFilter('all');
+      setDateFilter('all');
+    };
+    
     useEffect(() => {
         let filtered = [...orders];
 
@@ -140,6 +147,9 @@ const FilterControls = ({ orders, stores, onFilterChange, filteredCount, screenO
                     onColumnChange={(column, checked) => onScreenOptionsChange('visibleColumns', { ...screenOptions.visibleColumns, [column]: checked })}
                     onItemsPerPageChange={(value) => onScreenOptionsChange('itemsPerPage', value)}
                 />
+              
+                <Button variant="outline" className={"hover:bg-transparent hover:text-red-700 border-red-300 text-red-600"}
+                    onClick={reset}>Reset</Button>
 
             </div>
             {(orders.length > 0 || filteredCount > 0) && (
