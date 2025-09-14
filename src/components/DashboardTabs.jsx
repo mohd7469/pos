@@ -8,7 +8,7 @@ const DashboardTabs = ({ stores, orders, loading, onSync, onAddStore, onEditStor
     <Tabs defaultValue="orders" className="space-y-6">
       <TabsList className="grid w-full grid-cols-2 max-w-md">
         <TabsTrigger value="orders">Orders</TabsTrigger>
-        <TabsTrigger value="stores">Stores ({stores.length})</TabsTrigger>
+        {/*<TabsTrigger value="stores">Stores ({stores.length})</TabsTrigger>*/}
       </TabsList>
 
       <TabsContent value="orders">
@@ -26,7 +26,7 @@ const DashboardTabs = ({ stores, orders, loading, onSync, onAddStore, onEditStor
         />
       </TabsContent>
 
-      <TabsContent value="stores">
+      {/*<TabsContent value="stores">
         <StoresList
           stores={stores}
           loading={loading}
@@ -35,7 +35,7 @@ const DashboardTabs = ({ stores, orders, loading, onSync, onAddStore, onEditStor
           onEditStore={onEditStore}
           onDeleteStore={onDeleteStore}
         />
-      </TabsContent>
+      </TabsContent>*/}
     </Tabs>
   );
 };

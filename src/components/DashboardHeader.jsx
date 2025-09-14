@@ -30,13 +30,13 @@ const DashboardHeader = ({ openWhatsapp, onAddStore, onSync, onExport, loading, 
             Whatsapp Parser
           </Button>
           
-          <Button
+          {/*<Button
             onClick={onAddStore}
             className="bg-blue-600 hover:bg-blue-700"
           >
             <Plus className="h-4 w-4 mr-2" />
             Add Store
-          </Button>
+          </Button>*/}
           <Button
             onClick={() => onSync()}
             disabled={loading || storesCount === 0}
