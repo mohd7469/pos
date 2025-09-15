@@ -124,7 +124,7 @@ const DashboardHeader = ({ openCSR, openWhatsapp, onAddStore, onSync, onExport, 
                     key={idx}
                     onClick={() => onSync(store.id)}
                   >
-                    {store.name}
+                    Sync {store.name}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
