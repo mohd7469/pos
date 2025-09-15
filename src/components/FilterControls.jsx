@@ -61,10 +61,9 @@ const FilterControls = ({ orders, stores, onFilterChange, filteredCount, screenO
                 // const orderString = JSON.stringify(order).toLowerCase();
                 // return orderString.includes(lowercasedTerm);
                 const refNormal = (order.store_name+''+order.id).toLowerCase();  // for search with PDXB12277, dxb112275
-                const refReverse = (order.id+''+order.store_name).toLowerCase();  // for search with 12277PDXB, 12275dxb1
                 const orderString = JSON.stringify(order).toLowerCase();
                 // ✅ Match if ANY of the terms is found
-                return terms.some((term) => (term === refNormal) || (term === refReverse) || orderString.includes(term));
+                return terms.some((term) => (term === refNormal) || orderString.includes(term));
             });
         }
 
