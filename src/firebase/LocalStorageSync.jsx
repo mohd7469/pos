@@ -13,13 +13,16 @@ export function LocalStorageSync() {
   
   useEffect(() => {
     // This code now runs only on the client, so window is available.
-    const allowedHosts = ['pos.pharmilow.com'];
-    const isAllowed = allowedHosts.includes(window.location.hostname);
-    setIsAdmin(isAllowed);
+    const adminHosts = ['pos.pharmilow.com', 'localhost'];
+    const adminCheck = adminHosts.includes(window.location.hostname);
+    setIsAdmin(adminCheck);
   }, []);
   
-  // Sync from Firebase to Local Storage (for everyone)
+  // Combined Sync Logic: Only runs for Admins
   useEffect(() => {
+    if (!isAdmin) return;
+    
+    // --- Sync from Firebase to Local Storage (for Admins) ---
     const dbRef = ref(database, FIREBASE_DB_REF);
     
     const handleFirebaseSnapshot = (snapshot) => {
@@ -53,18 +56,11 @@ export function LocalStorageSync() {
       }
     };
     
-    get(dbRef).then(handleFirebaseSnapshot); // Initial sync
+    get(dbRef).then(handleFirebaseSnapshot); // Initial sync from Firebase
     const firebaseListener = onValue(dbRef, handleFirebaseSnapshot);
     
-    return () => {
-      firebaseListener();
-    };
-  }, []); // Runs once for all clients
-  
-  // Sync from Local Storage to Firebase (for Admins only)
-  useEffect(() => {
-    if (!isAdmin) return;
     
+    // --- Sync from Local Storage to Firebase (for Admins) ---
     const handleStorageChange = (event) => {
       if (isHandlingFirebaseUpdate.current) {
         return;
@@ -83,7 +79,7 @@ export function LocalStorageSync() {
     // Initial sync on becoming admin: Push all relevant LS values to Firebase.
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      // **THE FIX IS HERE**: Only sync keys that are not internal to Firebase.
+      // Only sync keys that are not internal to Firebase.
       if (key && !key.startsWith('firebase:')) {
         const value = localStorage.getItem(key);
         const prefixedKey = SYNC_PREFIX + key;
@@ -92,10 +88,12 @@ export function LocalStorageSync() {
       }
     }
     
+    // Cleanup function
     return () => {
+      firebaseListener(); // Detach Firebase listener
       window.removeEventListener('storage', handleStorageChange);
     };
-  }, [isAdmin]);
+  }, [isAdmin]); // This entire block depends on the isAdmin state
   
   return null;
 }
