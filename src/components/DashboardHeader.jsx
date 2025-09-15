@@ -96,7 +96,7 @@ const DashboardHeader = ({ openCSR, openWhatsapp, onAddStore, onSync, onExport, 
           <div className="inline-flex">
             {/* Main action */}
             <Button
-              onClick={onSync}
+              onClick={async () => await onSync("")}
               disabled={loading || storesCount === 0}
               variant="outline"
               className="rounded-r-none"
