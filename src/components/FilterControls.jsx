@@ -60,10 +60,10 @@ const FilterControls = ({ orders, stores, onFilterChange, filteredCount, screenO
             filtered = filtered.filter(order => {
                 // const orderString = JSON.stringify(order).toLowerCase();
                 // return orderString.includes(lowercasedTerm);
-              
+                const ref = (order.store_name + order.id).toLowerCase();  // for search with PDXB12277, dxb112275
                 const orderString = JSON.stringify(order).toLowerCase();
                 // ✅ Match if ANY of the terms is found
-                return terms.some((term) => orderString.includes(term));
+                return terms.some((term) =>  (ref === term) || orderString.includes(term));
             });
         }
 
