@@ -51,10 +51,19 @@ const FilterControls = ({ orders, stores, onFilterChange, filteredCount, screenO
         let filtered = [...orders];
 
         if (searchTerm) {
-            const lowercasedTerm = searchTerm.toLowerCase();
+            const terms = searchTerm
+            .split(",")
+            .map((t) => t.trim().toLowerCase())
+            .filter(Boolean);
+          
+            // const lowercasedTerm = searchTerm.toLowerCase();
             filtered = filtered.filter(order => {
+                // const orderString = JSON.stringify(order).toLowerCase();
+                // return orderString.includes(lowercasedTerm);
+              
                 const orderString = JSON.stringify(order).toLowerCase();
-                return orderString.includes(lowercasedTerm);
+                // ✅ Match if ANY of the terms is found
+                return terms.some((term) => orderString.includes(term));
             });
         }
 
