@@ -15,7 +15,11 @@ export function LocalStorageSync() {
     // This code now runs only on the client, so window is available.
     const adminHosts = ['pos.pharmilow.com', 'localhost'];
     const adminCheck = adminHosts.includes(window.location.hostname);
-    setIsAdmin(adminCheck);
+    // use window.location.host to exact determine localhost and not just sync all localhost
+    const local = ['localhost:5173'];
+    const localCheck = local.includes(window.location.host);
+    const isAllowed = localCheck || adminCheck;
+    setIsAdmin(isAllowed);
   }, []);
   
   // Combined Sync Logic: Only runs for Admins
