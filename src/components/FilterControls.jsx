@@ -41,6 +41,7 @@ const FilterControls = ({ orders, stores, onFilterChange, filteredCount, screenO
     ], [stores]);
   
     const reset = () => {
+      setSearchTerm('');
       setStatusFilter('all');
       setStoreFilter('all');
       setDateFilter('all');
