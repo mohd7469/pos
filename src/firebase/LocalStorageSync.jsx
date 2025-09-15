@@ -13,8 +13,9 @@ export function LocalStorageSync() {
   
   useEffect(() => {
     // This code now runs only on the client, so window is available.
-    const adminCheck = window.location.hostname === 'pos.pharmilow.com';
-    setIsAdmin(adminCheck);
+    const allowedHosts = ['pos.pharmilow.com'];
+    const isAllowed = allowedHosts.includes(window.location.hostname);
+    setIsAdmin(isAllowed);
   }, []);
   
   // Sync from Firebase to Local Storage (for everyone)
