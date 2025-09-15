@@ -9,6 +9,7 @@ import { Settings2 } from 'lucide-react';
 const ScreenOptions = ({ visibleColumns, onColumnChange, itemsPerPage, onItemsPerPageChange }) => {
     const allColumns = [
         { id: 'order', label: 'Order' },
+        { id: 'ref', label: 'Reference' },
         { id: 'date', label: 'Date' },
         { id: 'status', label: 'Status' },
         { id: 'billing', label: 'Billing' },

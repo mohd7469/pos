@@ -246,6 +246,9 @@ export const exportOrdersToExcel = (ordersToExport, visibleColumns, toast) => {
             row['Order ID'] = order.id;
             row['Store'] = order.store_name;
         }
+        if (visibleColumns.ref) {
+            row['Reference'] = order.store_name+''+order.id;
+        }
         if (visibleColumns.date) row['Date'] = new Date(order.date_created).toISOString();
         if (visibleColumns.status) row['Status'] = order.status;
         if (visibleColumns.billing) {

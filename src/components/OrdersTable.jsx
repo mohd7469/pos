@@ -122,6 +122,11 @@ const OrderRow = ({ order, index, isDuplicatePhone, isSelected, onSelectionChang
         </div>
         <div className="text-xs text-gray-500 font-bold text-base">{order.store_name}</div>
       </td>}
+  
+      {visibleColumns.ref && <td>
+        <div className="text-xs text-gray-500 font-bold text-base">{order.store_name+''+order.id}</div>
+      </td>}
+      
       {visibleColumns.date && <td>
         <div className="text-sm">
           {formatDate(order.date_created)}
@@ -298,6 +303,7 @@ const OrdersTable = ({ orders, loading, onUpdateOrders, isUpdatingOrders, onUpda
                   </div>
                 </th>
                 {screenOptions.visibleColumns.order && <th>Order</th>}
+                {screenOptions.visibleColumns.ref && <th>Reference</th>}
                 {screenOptions.visibleColumns.date && <th>Date</th>}
                 {screenOptions.visibleColumns.status && <th>Status</th>}
                 {screenOptions.visibleColumns.billing && <th>Billing</th>}
