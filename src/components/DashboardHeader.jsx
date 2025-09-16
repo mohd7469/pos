@@ -31,7 +31,7 @@ const DashboardHeader = ({ openCSR, openWhatsapp, onAddStore, onSync, onExport, 
     ? totalRevenue.toLocaleString('en-US', { style: 'currency', currency: currencies[0], minimumFractionDigits: 2, maximumFractionDigits: 2 })
     : `${totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} 💸`;
   
-  console.log('revenueString', revenueString);
+  // console.log('revenueString', revenueString);
   
   return (
     <motion.div
