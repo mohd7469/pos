@@ -35,13 +35,12 @@ const WooCommerceDashboard = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   
   const [filteredOrders, setFilteredOrders] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [isUpdatingOrders, setIsUpdatingOrders] = useState(false);
   const [isUpdatingDetails, setIsUpdatingDetails] = useState(false);
   const [showStoreModal, setShowStoreModal] = useState(false);
   const [editingStore, setEditingStore] = useState(null);
   const [selectedRows, setSelectedRows] = useState(new Set());
-  const { data } = getFirebaseData(SCREEN_OPTIONS_PATH);
+  const { data, loading, setLoading } = getFirebaseData(SCREEN_OPTIONS_PATH);
   const [screenOptions, setScreenOptions] = useState(() => {
     return data || defaultScreenOptions;
   });

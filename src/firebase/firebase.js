@@ -107,5 +107,5 @@ export function getFirebaseData(path) {
     }
   }, [finalPath]); // Effect re-runs if the finalPath changes
   
-  return { data, loading };
+  return { data, loading, setLoading };
 }
