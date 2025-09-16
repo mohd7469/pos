@@ -5,7 +5,24 @@ import { database } from './config';
 import { ref, set, onValue, update, remove } from 'firebase/database';
 
 // Define the constant database path at the top level
-const FIREBASE_DB_REF = 'g-box-admin';
+const FIREBASE_DB_REF = 'gbox-admin';
+
+/**
+ * Constructs the final database path, safely handling an empty root path.
+ * @param {string} [subPath] - The optional sub-path.
+ * @returns {string} The final, valid database path.
+ */
+const getFinalPath = (subPath) => {
+  let finalPath = '';
+  if (FIREBASE_DB_REF && subPath) {
+    finalPath = `${FIREBASE_DB_REF}/${subPath}`;
+  } else {
+    finalPath = subPath || FIREBASE_DB_REF;
+  }
+  // Ensure the path is never an empty string, default to root '/'
+  return finalPath === '' ? '/' : finalPath;
+};
+
 
 /**
  * Saves/overwrites any JSON-compatible data to a specific path in the Firebase Realtime Database.
@@ -16,7 +33,7 @@ const FIREBASE_DB_REF = 'g-box-admin';
  * @returns {Promise<void>} A promise that resolves when the save is complete.
  */
 export async function saveFirebaseData(data, path) {
-  const finalPath = path ? `${FIREBASE_DB_REF}/${path}` : FIREBASE_DB_REF;
+  const finalPath = getFinalPath(path);
   const dbRef = ref(database, finalPath);
   return set(dbRef, data);
 }
@@ -30,7 +47,7 @@ export async function saveFirebaseData(data, path) {
  * @returns {Promise<void>} A promise that resolves when the update is complete.
  */
 export async function updateFirebaseData(updates, path) {
-  const finalPath = path ? `${FIREBASE_DB_REF}/${path}` : FIREBASE_DB_REF;
+  const finalPath = getFinalPath(path);
   const dbRef = ref(database, finalPath);
   return update(dbRef, updates);
 }
@@ -43,7 +60,7 @@ export async function updateFirebaseData(updates, path) {
  * @returns {Promise<void>} A promise that resolves when the deletion is complete.
  */
 export async function deleteFirebaseData(path) {
-  const finalPath = path ? `${FIREBASE_DB_REF}/${path}` : FIREBASE_DB_REF;
+  const finalPath = getFinalPath(path);
   const dbRef = ref(database, finalPath);
   return remove(dbRef);
 }
@@ -59,25 +76,31 @@ export function getFirebaseData(path) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   
-  const finalPath = path ? `${FIREBASE_DB_REF}/${path}` : FIREBASE_DB_REF;
+  const finalPath = getFinalPath(path);
   
   useEffect(() => {
-    const dbRef = ref(database, finalPath);
-    
-    // onValue returns a function that can be called to unsubscribe
-    const unsubscribe = onValue(dbRef, (snapshot) => {
-      setData(snapshot.val());
+    // Only proceed if finalPath is a non-empty string
+    if (finalPath) {
+      const dbRef = ref(database, finalPath);
+      
+      const unsubscribe = onValue(dbRef, (snapshot) => {
+        setData(snapshot.val());
+        setLoading(false);
+      }, (error) => {
+        console.error(`Firebase subscription error at path: ${finalPath}`, error);
+        setLoading(false);
+      });
+      
+      // Cleanup function to detach the listener
+      return () => {
+        unsubscribe();
+      };
+    } else {
+      // If the path is invalid, don't attempt a subscription
+      console.error("Firebase error: An invalid path was provided.");
       setLoading(false);
-    }, (error) => {
-      console.error(`Firebase subscription error at path: ${finalPath}`, error);
-      setLoading(false);
-    });
-    
-    // Cleanup function to detach the listener when the component unmounts
-    // or when the path changes.
-    return () => {
-      unsubscribe();
-    };
+      setData(null);
+    }
   }, [finalPath]); // Effect re-runs if the finalPath changes
   
   return { data, loading };
