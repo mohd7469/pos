@@ -36,7 +36,7 @@ const OrderStats = ({ orders, setStatusFilter }) => {
     { title: 'Total Orders', value: stats.totalOrders.toLocaleString(), icon: ShoppingCart, color: 'text-blue-600', bgColor: 'bg-blue-50' },
     /*{ title: 'Total Revenue', value: revenueString, icon: DollarSign, color: 'text-green-600', bgColor: 'bg-green-50' },*/
     /*{ title: 'Pending', value: pendingOrders.toLocaleString(), icon: Clock, color: 'text-yellow-600', bgColor: 'bg-yellow-50' },*/
-    { title: 'On Hold', value: stats.onHoldOrders.toLocaleString(), icon: Clock, color: 'text-yellow-600', bgColor: 'bg-yellow-50' },
+    { title: 'Out for Delivery', value: stats.onHoldOrders.toLocaleString(), icon: Clock, color: 'text-yellow-600', bgColor: 'bg-yellow-50' },
     { title: 'Processing', value: stats.processingOrders.toLocaleString(), icon: Package, color: 'text-indigo-600', bgColor: 'bg-indigo-50' },
     { title: 'Completed', value: stats.completedOrders.toLocaleString(), icon: CheckCircle, color: 'text-green-600', bgColor: 'bg-green-50' },
     { title: 'Cancelled', value: stats.cancelledOrders.toLocaleString(), icon: XCircle, color: 'text-red-600', bgColor: 'bg-red-50' },
@@ -65,7 +65,7 @@ const OrderStats = ({ orders, setStatusFilter }) => {
         { title: 'Total Orders', value: totalOrders.toLocaleString(), icon: ShoppingCart, color: 'text-blue-600', bgColor: 'bg-blue-50' },
         /!*{ title: 'Total Revenue', value: revenueString, icon: DollarSign, color: 'text-green-600', bgColor: 'bg-green-50' },*!/
         /!*{ title: 'Pending', value: pendingOrders.toLocaleString(), icon: Clock, color: 'text-yellow-600', bgColor: 'bg-yellow-50' },*!/
-        { title: 'On Hold', value: onHoldOrders.toLocaleString(), icon: Clock, color: 'text-yellow-600', bgColor: 'bg-yellow-50' },
+        { title: 'Out for Delivery', value: onHoldOrders.toLocaleString(), icon: Clock, color: 'text-yellow-600', bgColor: 'bg-yellow-50' },
         { title: 'Processing', value: processingOrders.toLocaleString(), icon: Package, color: 'text-indigo-600', bgColor: 'bg-indigo-50' },
         { title: 'Completed', value: completedOrders.toLocaleString(), icon: CheckCircle, color: 'text-green-600', bgColor: 'bg-green-50' },
         { title: 'Cancelled', value: cancelledOrders.toLocaleString(), icon: XCircle, color: 'text-red-600', bgColor: 'bg-red-50' },
@@ -81,7 +81,7 @@ const OrderStats = ({ orders, setStatusFilter }) => {
       { value: 'all', label: 'All Statuses' },
       { value: 'pending', label: 'Pending' },
       { value: 'processing', label: 'Processing' },
-      { value: 'on-hold', label: 'On Hold' },
+      { value: 'on-hold', label: 'Out for Delivery' },
       { value: 'completed', label: 'Completed' },
       { value: 'cancelled', label: 'Cancelled' },
       { value: 'refunded', label: 'Refunded' },
