@@ -41,30 +41,35 @@ export async function deleteFirebaseData(path) {
 }
 
 /**
- * A React hook to subscribe to data at the predefined path in the Firebase Realtime Database.
+ * A React hook to subscribe to data in the Firebase Realtime Database.
+ * If no path is provided, it subscribes to the default FIREBASE_DB_REF path.
+ * @param {string} [path] - The optional path to subscribe to.
  * @returns {{data: any, loading: boolean}} An object containing the data and a loading state.
  */
-export function getFirebaseData() {
+export function getFirebaseData(path) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   
+  const finalPath = path || FIREBASE_DB_REF;
+  
   useEffect(() => {
-    const dbRef = ref(database, FIREBASE_DB_REF);
+    const dbRef = ref(database, finalPath);
     
     // onValue returns a function that can be called to unsubscribe
     const unsubscribe = onValue(dbRef, (snapshot) => {
       setData(snapshot.val());
       setLoading(false);
     }, (error) => {
-      console.error("Firebase subscription error:", error);
+      console.error(`Firebase subscription error at path: ${finalPath}`, error);
       setLoading(false);
     });
     
     // Cleanup function to detach the listener when the component unmounts
+    // or when the path changes.
     return () => {
       unsubscribe();
     };
-  }, []); // Effect runs once on mount
+  }, [finalPath]); // Effect re-runs if the finalPath changes
   
   return { data, loading };
 }
