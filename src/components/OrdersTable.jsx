@@ -46,40 +46,50 @@ const OrderRow = ({ order, index, isDuplicatePhone, isSelected, onSelectionChang
     return onUpdateOrderDetails(order.store_id, orderId, data);
   };
 
-  const BillingAddress = ({ address }) => {
+  const BillingAddress = ({ address, meta_data }) => {
     if (!address) return 'N/A';
+    
+    const city = meta_data.find(item => item.key === 'billing_area')?.value || 'N/A';
+    
     return (
-      <div className="space-y-1">
+      <div className="">
         <div className="flex gap-1">
-            <EditableField initialValue={address.first_name} onSave={handleFieldSave} fieldName="first_name" orderId={order.id} />
-            <EditableField initialValue={address.last_name} onSave={handleFieldSave} fieldName="last_name" orderId={order.id} />
+            {address.first_name && <EditableField className={"p-0"} initialValue={address.first_name} onSave={handleFieldSave} fieldName="first_name" orderId={order.id} />}
+            {address.last_name && <EditableField className={"p-0"} initialValue={address.last_name} onSave={handleFieldSave} fieldName="last_name" orderId={order.id} />}
         </div>
-        <EditableField initialValue={address.company} onSave={handleFieldSave} fieldName="company" orderId={order.id} />
-        <EditableField initialValue={address.address_1} onSave={handleFieldSave} fieldName="address_1" orderId={order.id} />
-        <EditableField initialValue={address.address_2} onSave={handleFieldSave} fieldName="address_2" orderId={order.id} />
+        {address.company && <EditableField initialValue={address.company} onSave={handleFieldSave} fieldName="company" orderId={order.id} />}
+        <EditableField className={"p-0"} initialValue={address.address_1} onSave={handleFieldSave} fieldName="address_1" orderId={order.id} />
+        <EditableField className={"p-0"} initialValue={address.address_2} onSave={handleFieldSave} fieldName="address_2" orderId={order.id} />
         <div className="flex gap-1">
-            <EditableField initialValue={address.city} onSave={handleFieldSave} fieldName="city" orderId={order.id} />
-            <EditableField initialValue={address.state} onSave={handleFieldSave} fieldName="state" orderId={order.id} />
+            <EditableField className={"p-0"} initialValue={address.city || city} onSave={handleFieldSave} fieldName="city" orderId={order.id} />
+            {address.state && <EditableField className={"p-0"} initialValue={address.state} onSave={handleFieldSave} fieldName="state" orderId={order.id} />}
         </div>
         <div className="flex gap-1">
-             <EditableField initialValue={address.postcode} onSave={handleFieldSave} fieldName="postcode" orderId={order.id} />
-             <EditableField initialValue={address.country} onSave={handleFieldSave} fieldName="country" orderId={order.id} />
+            {address.postcode && <EditableField className={"p-0"} initialValue={address.postcode} onSave={handleFieldSave} fieldName="postcode" orderId={order.id} />}
+            {/*<EditableField className={"p-0"} initialValue={address.country} onSave={handleFieldSave} fieldName="country" orderId={order.id} />*/}
         </div>
-        <EditableField initialValue={address.email} onSave={handleFieldSave} fieldName="email" orderId={order.id} />
-        <EditableField initialValue={address.phone} onSave={handleFieldSave} fieldName="phone" orderId={order.id} isDuplicatePhone={isDuplicatePhone} />
+        <EditableField className={"p-0"} initialValue={address.email} onSave={handleFieldSave} fieldName="email" orderId={order.id} />
+        {/*<EditableField className={"p-0"} initialValue={address.phone} onSave={handleFieldSave} fieldName="phone" orderId={order.id} isDuplicatePhone={isDuplicatePhone} />*/}
+        <div className={"p-0"}>{address.phone}</div>
+        <EditableField className={"p-0"} initialValue={city} />
       </div>
     );
   };
 
-   const ShippingAddress = ({ address }) => {
+   const ShippingAddress = ({ address, meta_data, billing, customer_note = 'N/A' }) => {
     if (!address || Object.keys(address).length === 0) return 'N/A';
+    
+    const city = meta_data.find(item => item.key === 'billing_area')?.value || 'N/A';
+    const phone = billing?.phone || 'N/A';
+    
     const parts = [
       `${address.first_name || ''} ${address.last_name || ''}`.trim(),
-      address.company,
       address.address_1,
       address.address_2,
       `${address.city || ''}, ${address.state || ''} ${address.postcode || ''}`.trim(),
-      address.country,
+      phone,
+      city,
+      customer_note
     ].filter(Boolean).filter(p => p.trim() !== ',');
     return (
       <div>
@@ -112,6 +122,11 @@ const OrderRow = ({ order, index, isDuplicatePhone, isSelected, onSelectionChang
         </div>
         <div className="text-xs text-gray-500 font-bold text-base">{order.store_name}</div>
       </td>}
+  
+      {visibleColumns.ref && <td>
+        <div className="text-xs text-gray-500 font-bold text-base">{order.store_name+''+order.id}</div>
+      </td>}
+      
       {visibleColumns.date && <td>
         <div className="text-sm">
           {formatDate(order.date_created)}
@@ -123,22 +138,30 @@ const OrderRow = ({ order, index, isDuplicatePhone, isSelected, onSelectionChang
         </Badge>
       </td>}
       {visibleColumns.billing && <td className="text-xs">
-          <BillingAddress address={order.billing} />
+          <BillingAddress address={order.billing} meta_data={order.meta_data} />
       </td>}
-      {visibleColumns.shipping && <td className="text-xs"><ShippingAddress address={order.shipping} /></td>}
+      {visibleColumns.shipping && <td className="text-xs"><ShippingAddress address={order.shipping} meta_data={order.meta_data} billing={order.billing} customer_note={order.customer_note} /></td>}
       {visibleColumns.items && <td className="text-xs">
         <ul className="space-y-1">
           {order.line_items?.map(item => (
             <li key={item.id}>
-              ({item.quantity}x)
-              <a
-                href={`${order.store_url}/?p=${item.product_id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="ml-1 text-blue-600 hover:underline inline-flex items-center gap-1"
-              >
-                {item.name} <ExternalLink className="h-3 w-3" />
-              </a>
+              {order.store_name.toLowerCase() === "wtsp" ? (
+                // ✅ Show last_name
+                <span>{order.billing.last_name}</span>
+              ) : (
+                // ✅ Show quantity + link
+                <>
+                  {item.quantity}x
+                  <a
+                    href={`${order.store_url}/?p=${item.product_id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ml-1 text-blue-600 hover:underline inline-flex items-center gap-1"
+                  >
+                    {item.name} <ExternalLink className="h-3 w-3" />
+                  </a>
+                </>
+              )}
             </li>
           ))}
         </ul>
@@ -161,7 +184,7 @@ const OrderRow = ({ order, index, isDuplicatePhone, isSelected, onSelectionChang
           <Button
             size="sm"
             variant="outline"
-            onClick={() => window.open(`${order.store_url}/wp-admin/post.php?post=${order.id}&action=edit`, '_blank')}
+            onClick={() => window.open(`${order.store_url}wp-admin/admin.php?page=wc-orders&action=edit&id=${order.id}`, '_blank')}
             title="View in WP Admin"
           >
             <Eye className="h-3 w-3" />
@@ -280,6 +303,7 @@ const OrdersTable = ({ orders, loading, onUpdateOrders, isUpdatingOrders, onUpda
                   </div>
                 </th>
                 {screenOptions.visibleColumns.order && <th>Order</th>}
+                {screenOptions.visibleColumns.ref && <th>Reference</th>}
                 {screenOptions.visibleColumns.date && <th>Date</th>}
                 {screenOptions.visibleColumns.status && <th>Status</th>}
                 {screenOptions.visibleColumns.billing && <th>Billing</th>}

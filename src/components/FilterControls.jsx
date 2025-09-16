@@ -10,10 +10,10 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import ScreenOptions from '@/components/ScreenOptions';
+import { Button } from "@/components/ui/button.jsx";
 
-const FilterControls = ({ orders, stores, onFilterChange, filteredCount, screenOptions, onScreenOptionsChange }) => {
+const FilterControls = ({ orders, stores, onFilterChange, filteredCount, screenOptions, onScreenOptionsChange, statusFilter, setStatusFilter }) => {
     const [searchTerm, setSearchTerm] = useState('');
-    const [statusFilter, setStatusFilter] = useState('all');
     const [storeFilter, setStoreFilter] = useState('all');
     const [dateFilter, setDateFilter] = useState('all');
 
@@ -25,29 +25,45 @@ const FilterControls = ({ orders, stores, onFilterChange, filteredCount, screenO
         { value: 'completed', label: 'Completed' },
         { value: 'cancelled', label: 'Cancelled' },
         { value: 'refunded', label: 'Refunded' },
-        { value: 'failed', label: 'Failed' },
+        { value: 'failed', label: 'Cancelled/Failed' },
     ], []);
 
     const dateFilters = useMemo(() => [
         { value: 'all', label: 'All Time' },
         { value: 'today', label: 'Today' },
         { value: 'week', label: 'Last 7 Days' },
-        // { value: 'month', label: 'Last 30 Days' },
+        { value: 'month', label: 'Last 30 Days' },
     ], []);
 
     const storeOptions = useMemo(() => [
         { value: 'all', name: 'All Stores' },
         ...stores
     ], [stores]);
-
+  
+    const reset = () => {
+      setSearchTerm('');
+      setStatusFilter('all');
+      setStoreFilter('all');
+      setDateFilter('all');
+    };
+    
     useEffect(() => {
         let filtered = [...orders];
 
         if (searchTerm) {
-            const lowercasedTerm = searchTerm.toLowerCase();
+            const terms = searchTerm
+            .split(",")
+            .map((t) => t.trim().toLowerCase())
+            .filter(Boolean);
+          
+            // const lowercasedTerm = searchTerm.toLowerCase();
             filtered = filtered.filter(order => {
+                // const orderString = JSON.stringify(order).toLowerCase();
+                // return orderString.includes(lowercasedTerm);
+                const refNormal = (order.store_name+''+order.id).toLowerCase();  // for search with PDXB12277, dxb112275
                 const orderString = JSON.stringify(order).toLowerCase();
-                return orderString.includes(lowercasedTerm);
+                // ✅ Match if ANY of the terms is found
+                return terms.some((term) => (term === refNormal) || orderString.includes(term));
             });
         }
 
@@ -84,6 +100,7 @@ const FilterControls = ({ orders, stores, onFilterChange, filteredCount, screenO
                 <div className="relative flex-grow">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                     <Input
+                        type={'search'}
                         placeholder="Search all order fields..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -141,6 +158,9 @@ const FilterControls = ({ orders, stores, onFilterChange, filteredCount, screenO
                     onColumnChange={(column, checked) => onScreenOptionsChange('visibleColumns', { ...screenOptions.visibleColumns, [column]: checked })}
                     onItemsPerPageChange={(value) => onScreenOptionsChange('itemsPerPage', value)}
                 />
+              
+                <Button variant="outline" className={"hover:bg-transparent hover:text-red-700 border-red-300 text-red-600"}
+                    onClick={reset}>Reset</Button>
 
             </div>
             {(orders.length > 0 || filteredCount > 0) && (

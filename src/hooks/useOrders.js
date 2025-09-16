@@ -1,29 +1,30 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { saveFirebaseData, getFirebaseData } from '../firebase/firebase.js';
 
-const ORDERS_STORAGE_KEY = 'woocommerce_orders';
+const ORDERS_PATH = 'woocommerce_orders';
 
 export const useOrders = () => {
   const [orders, setOrders] = useState([]);
-
-  const loadOrdersFromStorage = useCallback(() => {
-    try {
-      const savedOrders = localStorage.getItem(ORDERS_STORAGE_KEY);
-      if (savedOrders) {
-        setOrders(JSON.parse(savedOrders));
-      }
-    } catch (error) {
-      console.error("Failed to load orders from local storage", error);
+  
+  // Load orders from Firebase (gbox-admin/woocommerce_orders)
+  const { data } = getFirebaseData(ORDERS_PATH);
+  
+  useEffect(() => {
+    if (data) {
+      setOrders(data); // ✅ since you said "save as it is", data = orders array
     }
-  }, []);
-
+  }, [data]);
+  
+  // Save orders to Firebase
   const saveOrdersToStorage = useCallback((newOrders) => {
     try {
-      localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(newOrders));
+      saveFirebaseData(newOrders, ORDERS_PATH);
     } catch (error) {
-      console.error("Failed to save orders to local storage", error);
+      console.error("Failed to save orders to Firebase", error);
     }
   }, []);
 
+  // Update orders per store
   const updateOrdersForStore = useCallback((storeId, storeOrders, storeData) => {
     const processedOrders = storeOrders.map(order => ({
       ...order,
@@ -40,5 +41,5 @@ export const useOrders = () => {
     });
   }, [saveOrdersToStorage]);
 
-  return { orders, setOrders, loadOrdersFromStorage, saveOrdersToStorage, updateOrdersForStore };
+  return { orders, setOrders, saveOrdersToStorage, updateOrdersForStore };
 };

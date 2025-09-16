@@ -1,6 +1,5 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Toaster } from '@/components/ui/toaster';
 import WooCommerceDashboard from '@/components/WooCommerceDashboard';
 
 function App() {
@@ -14,7 +13,6 @@ function App() {
       </Helmet>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
         <WooCommerceDashboard />
-        <Toaster />
       </div>
     </>
   );
