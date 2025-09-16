@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 import { database } from './config';
 import { ref, set, onValue, update, remove } from 'firebase/database';
 
-// Define the constant database path at the top level
-const FIREBASE_DB_REF = 'gbox-admin';
+const FIREBASE_ADMIN_REF = 'gbox-admin';
+const FIREBASE_LOCALHOST_REF = 'syncedStorage';
 
 /**
  * Constructs the final database path, safely handling an empty root path.
@@ -13,11 +13,14 @@ const FIREBASE_DB_REF = 'gbox-admin';
  * @returns {string} The final, valid database path.
  */
 const getFinalPath = (subPath) => {
+  const isLocalhost = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+  const basePath = isLocalhost ? FIREBASE_LOCALHOST_REF : FIREBASE_ADMIN_REF;
+  
   let finalPath = '';
-  if (FIREBASE_DB_REF && subPath) {
-    finalPath = `${FIREBASE_DB_REF}/${subPath}`;
+  if (basePath && subPath) {
+    finalPath = `${basePath}/${subPath}`;
   } else {
-    finalPath = subPath || FIREBASE_DB_REF;
+    finalPath = subPath || basePath;
   }
   // Ensure the path is never an empty string, default to root '/'
   return finalPath === '' ? '/' : finalPath;
@@ -77,22 +80,22 @@ export function getFirebaseData(path) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   
-  const finalPath = getFinalPath(path);
+  const readPath = path ? `${FIREBASE_ADMIN_REF}/${path}` : FIREBASE_ADMIN_REF;
   
   useEffect(() => {
-    // Only proceed if finalPath is a non-empty string
-    if (finalPath) {
-      const dbRef = ref(database, finalPath);
+    // Only proceed if the path is non-empty
+    if (readPath) {
+      const dbRef = ref(database, readPath);
       
       const unsubscribe = onValue(dbRef, (snapshot) => {
         const res = JSON.parse(snapshot.val());
-        console.info(`Syncing.. ${finalPath}:\n`, typeof res);
-        // console.info(res);
+        console.info(`Syncing.. ${readPath}`);
+        // console.info(typeof res);
         console.info('\n');
         setData(res);
         setLoading(false);
       }, (error) => {
-        console.error(`Firebase subscription error at path: ${finalPath}`, error);
+        console.error(`Firebase subscription error at path: ${readPath}`, error);
         setLoading(false);
       });
       
@@ -106,7 +109,7 @@ export function getFirebaseData(path) {
       setLoading(false);
       setData(null);
     }
-  }, [finalPath]); // Effect re-runs if the finalPath changes
+  }, [readPath]); // re-runs if the Path changes
   
   return { data, loading, setLoading };
 }
