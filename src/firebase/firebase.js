@@ -35,6 +35,7 @@ const getFinalPath = (subPath) => {
 export async function saveFirebaseData(data, path) {
   const finalPath = getFinalPath(path);
   const dbRef = ref(database, finalPath);
+  // console.log('firebase payload:', typeof data, data)
   return set(dbRef, JSON.stringify(data));
 }
 
@@ -85,8 +86,8 @@ export function getFirebaseData(path) {
       
       const unsubscribe = onValue(dbRef, (snapshot) => {
         const res = JSON.parse(snapshot.val());
-        console.info(`Syncing.. ${finalPath}:\n`);
-        console.info(res);
+        console.info(`Syncing.. ${finalPath}:\n`, typeof res);
+        // console.info(res);
         console.info('\n');
         setData(res);
         setLoading(false);
