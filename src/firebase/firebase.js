@@ -5,6 +5,7 @@ import { database } from './config';
 import { ref, set, onValue, update, remove } from 'firebase/database';
 
 const FIREBASE_ADMIN_REF = 'gbox-admin';
+const FIREBASE_CSR_REF = 'csr-gbox';
 const FIREBASE_LOCALHOST_REF = 'syncedStorage';
 
 /**
@@ -13,8 +14,22 @@ const FIREBASE_LOCALHOST_REF = 'syncedStorage';
  * @returns {string} The final, valid database path.
  */
 const getFinalPath = (subPath) => {
-  const isLocalhost = typeof window !== 'undefined' && window.location.hostname === 'localhost';
-  const basePath = isLocalhost ? FIREBASE_LOCALHOST_REF : FIREBASE_ADMIN_REF;
+  let basePath;
+  
+  switch (window.location.hostname) {
+    case 'pos.pharmilow.com': {
+      basePath = FIREBASE_ADMIN_REF;
+      break
+    }
+    case 'csr.pharmilow.com': {
+      basePath = FIREBASE_CSR_REF;
+      break
+    }
+    default: {
+      // localhost
+      basePath = FIREBASE_LOCALHOST_REF;
+    }
+  }
   
   let finalPath = '';
   if (basePath && subPath) {
