@@ -50,7 +50,7 @@ export const useStores = () => {
         s.id === storeId ? { ...s, ...updates } : s
       );
       saveStoresToStorage(updatedStores);
-      notifySuccess("Your store details have been saved.");
+      notifySuccess("Store details updated.");
       return updatedStores;
     });
   }, [saveStoresToStorage]);
