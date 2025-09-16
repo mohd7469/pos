@@ -50,7 +50,7 @@ export async function saveFirebaseData(data, path) {
 export async function updateFirebaseData(updates, path) {
   const finalPath = getFinalPath(path);
   const dbRef = ref(database, finalPath);
-  return update(dbRef, updates);
+  return update(dbRef, JSON.stringify(updates));
 }
 
 /**
