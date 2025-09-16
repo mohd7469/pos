@@ -51,15 +51,12 @@ const DashboardHeader = ({ openCSR, openWhatsapp, onAddStore, onSync, onExport, 
           </p>
         </div>
         <div className="flex gap-3">
-          <Popover>
-            {/* Trigger Button */}
+          {/*<Popover>
             <PopoverTrigger asChild>
               <Button variant="outline" className="flex items-center">
                 <Coins className="h-4 w-4 mr-2" /> Total Revenue
               </Button>
             </PopoverTrigger>
-            
-            {/* Popover Content */}
             <PopoverContent className="w-full">
               <div className="space-y-2">
                 <p className="flex items-center font-bold text-green-800">
@@ -67,7 +64,14 @@ const DashboardHeader = ({ openCSR, openWhatsapp, onAddStore, onSync, onExport, 
                 </p>
               </div>
             </PopoverContent>
-          </Popover>
+          </Popover>*/}
+          
+          <div
+            className={"flex justify-center items-center gap-1 font-semibold text-green-800 mx-4"}
+          >
+            <Coins className="h-4 w-4 mr-2" />
+            {revenueString}
+          </div>
           
           <Button
             onClick={openWhatsapp}
