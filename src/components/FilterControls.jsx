@@ -25,7 +25,7 @@ const FilterControls = ({ orders, stores, onFilterChange, filteredCount, screenO
         { value: 'completed', label: 'Completed' },
         { value: 'cancelled', label: 'Cancelled' },
         { value: 'refunded', label: 'Refunded' },
-        { value: 'failed', label: 'Cancelled/Failed' },
+        { value: 'failed', label: 'Failed' },
     ], []);
 
     const dateFilters = useMemo(() => [

@@ -12,7 +12,7 @@ const OrderStats = ({ orders, setStatusFilter }) => {
     const onHoldOrders = orders.filter(order => order.status === 'on-hold').length;
     const processingOrders = orders.filter(order => order.status === 'processing').length;
     const completedOrders = orders.filter(order => order.status === 'completed').length;
-    const cancelledOrders = orders.filter(order => ['cancelled', 'failed', 'refunded'].includes(order.status)).length;
+    const cancelledOrders = orders.filter(o => o.status === 'cancelled').length;
 
     const currencies = [...new Set(orders.map(o => o.currency))];
     const revenueString = currencies.length === 1 && currencies[0] 
@@ -74,7 +74,7 @@ const OrderStats = ({ orders, setStatusFilter }) => {
       bgColor: 'bg-green-50'
     },
     {
-      title: 'Cancelled/Failed',
+      title: 'Cancelled',
       value: stats.cancelledOrders.toLocaleString(),
       icon: XCircle,
       color: 'text-red-600',
@@ -92,7 +92,7 @@ const OrderStats = ({ orders, setStatusFilter }) => {
       const onHoldOrders = orders.filter(o => o.status === 'on-hold').length;
       const processingOrders = orders.filter(o => o.status === 'processing').length;
       const completedOrders = orders.filter(o => o.status === 'completed').length;
-      const cancelledOrders = orders.filter(o => ['cancelled', 'failed', 'refunded'].includes(o.status)).length;
+      const cancelledOrders = orders.filter(o => o.status === 'cancelled').length;
       
       const currencies = [...new Set(orders.map(o => o.currency))];
       const revenueString = currencies.length === 1 && currencies[0]
@@ -106,7 +106,7 @@ const OrderStats = ({ orders, setStatusFilter }) => {
         { title: 'On Hold', value: onHoldOrders.toLocaleString(), icon: Clock, color: 'text-yellow-600', bgColor: 'bg-yellow-50' },
         { title: 'Processing', value: processingOrders.toLocaleString(), icon: Package, color: 'text-indigo-600', bgColor: 'bg-indigo-50' },
         { title: 'Completed', value: completedOrders.toLocaleString(), icon: CheckCircle, color: 'text-green-600', bgColor: 'bg-green-50' },
-        { title: 'Cancelled/Failed', value: cancelledOrders.toLocaleString(), icon: XCircle, color: 'text-red-600', bgColor: 'bg-red-50' }
+        { title: 'Cancelled', value: cancelledOrders.toLocaleString(), icon: XCircle, color: 'text-red-600', bgColor: 'bg-red-50' }
       ]);
     }
   }, [orders, statCards]);
@@ -121,7 +121,7 @@ const OrderStats = ({ orders, setStatusFilter }) => {
       { value: 'completed', label: 'Completed' },
       { value: 'cancelled', label: 'Cancelled' },
       { value: 'refunded', label: 'Refunded' },
-      { value: 'failed', label: 'Cancelled/Failed' },
+      { value: 'failed', label: 'Failed' },
     ];
     
     const match = orderStatuses.find(
