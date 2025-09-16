@@ -1,4 +1,4 @@
-
+import { saveFirebaseData } from '../firebase/firebase';
 import { toast } from '@/components/ui/use-toast';
 import Papa from 'papaparse';
 
@@ -54,7 +54,7 @@ export const syncStoreOrders = async (store, setOrders) => {
   setOrders(prevOrders => {
     const existingOrders = prevOrders.filter(order => order.store_id !== store.id);
     const updatedOrders = [...existingOrders, ...processedOrders];
-    localStorage.setItem('woocommerce_orders', JSON.stringify(updatedOrders));
+    saveFirebaseData(updatedOrders, 'woocommerce_orders');
     return updatedOrders;
   });
 };

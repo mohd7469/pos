@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { useToast } from '@/components/ui/use-toast';
 import { useStores } from '@/hooks/useStores';
 import { useOrders } from '@/hooks/useOrders';
 import { syncAllStores, exportOrdersToExcel, updateOrderStatusBatch, updateOrderDetails } from '@/lib/woocommerce';
@@ -10,6 +9,7 @@ import OrderStats from '@/components/OrderStats';
 import FilterControls from '@/components/FilterControls';
 import DashboardTabs from '@/components/DashboardTabs';
 import StoreConnectionModal from '@/components/StoreConnectionModal';
+import { saveFirebaseData, getFirebaseData } from '../firebase/firebase.js';
 
 const defaultScreenOptions = {
     itemsPerPage: 20,
@@ -26,9 +26,11 @@ const defaultScreenOptions = {
     }
 };
 
+const SCREEN_OPTIONS_PATH = 'screenOptions';
+
 const WooCommerceDashboard = () => {
-  const { stores, addStore, updateStore, deleteStore, loadStoresFromStorage } = useStores();
-  const { orders, setOrders, loadOrdersFromStorage, saveOrdersToStorage } = useOrders();
+  const { stores, addStore, updateStore, deleteStore } = useStores();
+  const { orders, setOrders, saveOrdersToStorage } = useOrders();
   
   const [statusFilter, setStatusFilter] = useState('all');
   
@@ -39,20 +41,19 @@ const WooCommerceDashboard = () => {
   const [showStoreModal, setShowStoreModal] = useState(false);
   const [editingStore, setEditingStore] = useState(null);
   const [selectedRows, setSelectedRows] = useState(new Set());
+  const { data: screenOptionsData } = getFirebaseData(SCREEN_OPTIONS_PATH);
   const [screenOptions, setScreenOptions] = useState(() => {
-    const savedOptions = localStorage.getItem('screenOptions');
-    return savedOptions ? JSON.parse(savedOptions) : defaultScreenOptions;
+    return screenOptionsData || defaultScreenOptions;
   });
   
-  const { toast } = useToast();
-
   useEffect(() => {
-    loadStoresFromStorage();
-    loadOrdersFromStorage();
-  }, [loadStoresFromStorage, loadOrdersFromStorage]);
+    if (screenOptionsData) {
+      setScreenOptions(screenOptionsData);
+    }
+  }, [screenOptionsData]);
   
   const sortedOrders = useMemo(() => {
-      return [...orders].sort((a, b) => new Date(b.date_created) - new Date(a.date_created));
+    return [...orders].sort((a, b) => new Date(b.date_created) - new Date(a.date_created));
   }, [orders]);
 
   useEffect(() => {
@@ -63,7 +64,7 @@ const WooCommerceDashboard = () => {
   const handleScreenOptionsChange = (key, value) => {
     const newOptions = { ...screenOptions, [key]: value };
     setScreenOptions(newOptions);
-    localStorage.setItem('screenOptions', JSON.stringify(newOptions));
+    saveFirebaseData(newOptions, SCREEN_OPTIONS_PATH);
   };
 
   const handleOpenStoreModal = (store = null) => {
@@ -100,7 +101,6 @@ const WooCommerceDashboard = () => {
       stores,
       setOrders,
       updateStore,
-      toast,
     });
     setLoading(false);
   };
@@ -114,7 +114,7 @@ const WooCommerceDashboard = () => {
       ordersToExport = filteredOrders;
     }
     
-    exportOrdersToExcel(ordersToExport, screenOptions.visibleColumns, toast);
+    exportOrdersToExcel(ordersToExport, screenOptions.visibleColumns);
   };
 
   const handleUpdateOrders = async (ordersToUpdate, newStatus) => {
@@ -123,7 +123,6 @@ const WooCommerceDashboard = () => {
         ordersToUpdate,
         newStatus,
         stores,
-        toast,
     });
 
     const updatedOrderIds = new Set(ordersToUpdate.map(o => o.id));
@@ -148,7 +147,6 @@ const WooCommerceDashboard = () => {
             orderId,
             data,
             stores,
-            toast,
         });
 
         const newOrders = orders.map(order => {

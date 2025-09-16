@@ -84,7 +84,9 @@ export function getFirebaseData(path) {
       const dbRef = ref(database, finalPath);
       
       const unsubscribe = onValue(dbRef, (snapshot) => {
-        setData(snapshot.val());
+        const res = JSON.parse(snapshot.val());
+        console.info('VALUE::', res);
+        setData(res);
         setLoading(false);
       }, (error) => {
         console.error(`Firebase subscription error at path: ${finalPath}`, error);

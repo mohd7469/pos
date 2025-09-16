@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
-import { useToast } from '@/components/ui/use-toast';
+import { notifySuccess, notifyError } from '../utils/toast';
 import { testStoreConnection } from '@/lib/woocommerce';
 
 const StoreConnectionModal = ({ isOpen, onClose, onSaveStore, store }) => {
@@ -16,7 +16,6 @@ const StoreConnectionModal = ({ isOpen, onClose, onSaveStore, store }) => {
     consumerSecret: ''
   });
   const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
   const isEditing = !!store;
 
   useEffect(() => {
@@ -37,11 +36,7 @@ const StoreConnectionModal = ({ isOpen, onClose, onSaveStore, store }) => {
     e.preventDefault();
     
     if (!formData.name || !formData.url || !formData.consumerKey || !formData.consumerSecret) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in all required fields.",
-        variant: "destructive"
-      });
+      notifyError("Please fill in all required fields.");
       return;
     }
 
@@ -50,16 +45,13 @@ const StoreConnectionModal = ({ isOpen, onClose, onSaveStore, store }) => {
     try {
       await testStoreConnection(formData);
       onSaveStore(formData);
-      toast({
-        title: isEditing ? "Store Updated!" : "Connection Successful!",
-        description: isEditing ? `${formData.name} has been updated.` : `${formData.name} has been added.`
-      });
+      notifySuccess(
+        isEditing
+          ? `${formData.name} has been updated.`
+          : `${formData.name} has been added.`
+      );
     } catch (error) {
-      toast({
-        title: "Connection Failed",
-        description: error.message || "Please check credentials and URL.",
-        variant: "destructive"
-      });
+      notifyError(error.message || "Please check credentials and URL.");
     } finally {
       setLoading(false);
     }
