@@ -23,7 +23,7 @@ const DashboardHeader = ({ openCSR, openWhatsapp, onAddStore, onSync, onExport, 
     ...stores
   ], [stores]);
   
-  console.log(storeOptions);
+  // console.log(storeOptions);
   
   const totalRevenue = filteredOrders.reduce((sum, order) => sum + parseFloat(order.total || 0), 0);
   const currencies = [...new Set(filteredOrders.map(o => o.currency))];
