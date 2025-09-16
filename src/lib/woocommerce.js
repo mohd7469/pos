@@ -1,5 +1,5 @@
 import { saveFirebaseData } from '../firebase/firebase';
-import { toast } from '@/components/ui/use-toast';
+import { notifySuccess, notifyError } from '../utils/toast';
 import Papa from 'papaparse';
 
 const CORS_PROXY_URL = 'https://app-cors.vercel.app/api/proxy?url=';
@@ -59,17 +59,18 @@ export const syncStoreOrders = async (store, setOrders) => {
   });
 };
 
-export const syncAllStores = async ({ storeId, stores, setOrders, updateStore, toast }) => {
+export const syncAllStores = async ({ storeId, stores, setOrders, updateStore }) => {
   let syncedCount = 0;
   
   const storesToSync = storeId ? stores.filter(s => s.id === storeId) : stores;
   
   if (storesToSync.length === 0 && !storeId) {
-    toast({
+    /*toast({
       title: "No Stores to Sync",
       description: "Please add a store first.",
       variant: "destructive"
-    });
+    });*/
+    notifySuccess(`Please add a store first.`);
     return;
   }
 
@@ -81,23 +82,25 @@ export const syncAllStores = async ({ storeId, stores, setOrders, updateStore, t
     } catch (e) {
       updateStore(store.id, { connected: false });
       console.error(`Failed to sync store: ${store.name}`, e);
-      toast({
+      /*toast({
         title: `Sync Error for ${store.name}`,
         description: "Could not retrieve orders. Please check credentials and connection.",
         variant: "destructive"
-      });
+      });*/
+      notifyError("Could not retrieve orders. Please check credentials and connection.");
     }
   }
       
   if (syncedCount > 0) {
-    toast({
+    /*toast({
       title: "Orders Synced Successfully!",
       description: `Retrieved orders from ${syncedCount} store(s).`
-    });
+    });*/
+    notifySuccess(`Retrieved orders from ${syncedCount} store(s).`);
   }
 };
 
-export const updateOrderStatusBatch = async ({ ordersToUpdate, newStatus, stores, toast }) => {
+export const updateOrderStatusBatch = async ({ ordersToUpdate, newStatus, stores }) => {
     const ordersByStore = ordersToUpdate.reduce((acc, order) => {
         (acc[order.store_id] = acc[order.store_id] || []).push({ id: order.id, status: newStatus });
         return acc;
@@ -109,13 +112,14 @@ export const updateOrderStatusBatch = async ({ ordersToUpdate, newStatus, stores
     for (const storeId in ordersByStore) {
         const store = stores.find(s => s.id === storeId);
         if (!store) {
-            toast({
+          /*toast({
                 title: 'Update Error',
                 description: `Could not find store with ID ${storeId}.`,
                 variant: 'destructive',
-            });
-            errorCount += ordersByStore[storeId].length;
-            continue;
+            });*/
+          notifySuccess(`Could not find store with ID ${storeId}.`);
+          errorCount += ordersByStore[storeId].length;
+          continue;
         }
 
         try {
@@ -142,39 +146,43 @@ export const updateOrderStatusBatch = async ({ ordersToUpdate, newStatus, stores
 
         } catch (error) {
             console.error(`Failed to update orders for store ${store.name}:`, error);
-            toast({
+            /*toast({
                 title: `Update Failed for ${store.name}`,
                 description: error.message || 'An unknown error occurred.',
                 variant: 'destructive',
-            });
+            });*/
+            notifyError(error.message || 'An unknown error occurred.');
             errorCount += ordersByStore[storeId].length;
         }
     }
     
     if(successCount > 0) {
-        toast({
+        /*toast({
             title: 'Update Successful!',
             description: `${successCount} order(s) have been updated to "${newStatus}".`,
-        });
+        });*/
+        notifySuccess(`${successCount} order(s) have been updated to "${newStatus}".`);
     }
 
     if (errorCount > 0) {
-       toast({
+        /*toast({
             title: 'Some Updates Failed',
             description: `${errorCount} order(s) could not be updated. See console for details.`,
             variant: 'destructive'
-        });
+        });*/
+        notifyError(`${errorCount} order(s) could not be updated. See console for details.`);
     }
 };
 
-export const updateOrderDetails = async ({ storeId, orderId, data, stores, toast }) => {
+export const updateOrderDetails = async ({ storeId, orderId, data, stores }) => {
     const store = stores.find(s => s.id === storeId);
     if (!store) {
-        toast({
+        /*toast({
             title: 'Update Error',
             description: `Could not find store with ID ${storeId}.`,
             variant: 'destructive',
-        });
+        });*/
+        notifyError(`Could not find store with ID ${storeId}.`);
         throw new Error('Store not found');
     }
 
@@ -199,12 +207,13 @@ export const updateOrderDetails = async ({ storeId, orderId, data, stores, toast
         }
 
         const updatedOrder = await response.json();
-
-        toast({
+      
+        /*toast({
             title: 'Update Successful!',
             description: `Order #${orderId} details have been updated.`,
-        });
-
+        });*/
+        notifySuccess(`Order #${orderId} details have been updated.`);
+        
         return {
             ...updatedOrder,
             store_name: store.name,
@@ -214,22 +223,24 @@ export const updateOrderDetails = async ({ storeId, orderId, data, stores, toast
 
     } catch (error) {
         console.error(`Failed to update order for store ${store.name}:`, error);
-        toast({
+        /*toast({
             title: `Update Failed for ${store.name}`,
             description: error.message || 'An unknown error occurred.',
             variant: 'destructive',
-        });
+        });*/
+        notifyError(error.message || 'An unknown error occurred.');
         throw error;
     }
 };
 
-export const exportOrdersToExcel = (ordersToExport, visibleColumns, toast) => {
+export const exportOrdersToExcel = (ordersToExport, visibleColumns) => {
     if (!ordersToExport || ordersToExport.length === 0) {
-      toast({
+      /*toast({
         title: "No Data to Export",
         description: "There are no orders to export.",
         variant: "destructive"
-      });
+      });*/
+      notifyError("There are no orders to export.");
       return;
     }
 
@@ -307,9 +318,10 @@ export const exportOrdersToExcel = (ordersToExport, visibleColumns, toast) => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-
-    toast({
+  
+    /*toast({
       title: "Export Successful!",
       description: `Exported ${ordersToExport.length} orders to CSV file.`
-    });
+    });*/
+    notifySuccess(`Exported ${ordersToExport.length} orders to CSV file.`);
   };
