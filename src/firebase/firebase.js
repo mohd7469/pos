@@ -85,7 +85,7 @@ export function getFirebaseData(path) {
       
       const unsubscribe = onValue(dbRef, (snapshot) => {
         const res = JSON.parse(snapshot.val());
-        console.info(`Syncing Firebase ${dbRef}:`, res);
+        console.info(`Syncing.. ${finalPath}:`, res);
         setData(res);
         setLoading(false);
       }, (error) => {
