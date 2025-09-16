@@ -26,7 +26,7 @@ const defaultScreenOptions = {
     }
 };
 
-const SCREEN_OPTIONS_PATH = 'screenOptions';
+const SCREEN_OPTIONS_PATH = 'screen_options';
 
 const WooCommerceDashboard = () => {
   const { stores, addStore, updateStore, deleteStore } = useStores();
