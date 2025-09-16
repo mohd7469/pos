@@ -77,8 +77,15 @@ export const syncAllStores = async ({ storeId, stores, setOrders, updateStore })
   for (const store of storesToSync) {
     try {
       await syncStoreOrders(store, setOrders);
-      updateStore(store.id, { connected: true, lastSync: new Date().toISOString() });
-      syncedCount++;
+      
+      await new Promise((resolve) => {
+        setTimeout(() => {
+          updateStore(store.id, { connected: true, lastSync: new Date().toISOString() });
+          syncedCount++;
+          resolve();
+        }, 1000);
+      });
+      
     } catch (e) {
       updateStore(store.id, { connected: false });
       console.error(`Failed to sync store: ${store.name}`, e);
