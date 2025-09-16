@@ -41,16 +41,16 @@ const WooCommerceDashboard = () => {
   const [showStoreModal, setShowStoreModal] = useState(false);
   const [editingStore, setEditingStore] = useState(null);
   const [selectedRows, setSelectedRows] = useState(new Set());
-  const { data: screenOptionsData } = getFirebaseData(SCREEN_OPTIONS_PATH);
+  const { data } = getFirebaseData(SCREEN_OPTIONS_PATH);
   const [screenOptions, setScreenOptions] = useState(() => {
-    return screenOptionsData || defaultScreenOptions;
+    return data || defaultScreenOptions;
   });
   
   useEffect(() => {
-    if (screenOptionsData) {
-      setScreenOptions(screenOptionsData);
+    if (data) {
+      setScreenOptions(data);
     }
-  }, [screenOptionsData]);
+  }, [data]);
   
   const sortedOrders = useMemo(() => {
     return [...orders].sort((a, b) => new Date(b.date_created) - new Date(a.date_created));
@@ -64,7 +64,7 @@ const WooCommerceDashboard = () => {
   const handleScreenOptionsChange = (key, value) => {
     const newOptions = { ...screenOptions, [key]: value };
     setScreenOptions(newOptions);
-    saveFirebaseData(newOptions, SCREEN_OPTIONS_PATH);
+    saveFirebaseData(JSON.stringify(newOptions), SCREEN_OPTIONS_PATH);
   };
 
   const handleOpenStoreModal = (store = null) => {
