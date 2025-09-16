@@ -5,7 +5,7 @@ import { database } from './config';
 import { ref, set, onValue, update, remove } from 'firebase/database';
 
 // Define the constant database path at the top level
-const FIREBASE_DB_REF = 'user/profile';
+const FIREBASE_DB_REF = 'g-box-admin';
 
 /**
  * Saves/overwrites any JSON-compatible data to the predefined path in the Firebase Realtime Database.
