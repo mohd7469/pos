@@ -8,23 +8,28 @@ import { ref, set, onValue, update, remove } from 'firebase/database';
 const FIREBASE_DB_REF = 'g-box-admin';
 
 /**
- * Saves/overwrites any JSON-compatible data to the predefined path in the Firebase Realtime Database.
+ * Saves/overwrites any JSON-compatible data to a specific path in the Firebase Realtime Database.
+ * If no path is provided, it saves to the default FIREBASE_DB_REF path.
  * @param {any} data - The data to save.
+ * @param {string} [path] - The optional path to save data to.
  * @returns {Promise<void>} A promise that resolves when the save is complete.
  */
-export async function saveFirebaseData(data) {
-  const dbRef = ref(database, FIREBASE_DB_REF);
+export async function saveFirebaseData(data, path) {
+  const finalPath = path || FIREBASE_DB_REF;
+  const dbRef = ref(database, finalPath);
   return set(dbRef, data);
 }
 
 /**
- * Updates data at the predefined path in the Firebase Realtime Database.
- * This performs a shallow update and does not overwrite the entire object.
+ * Updates data at a specific path in the Firebase Realtime Database.
+ * If no path is provided, it updates at the default FIREBASE_DB_REF path.
  * @param {object} updates - An object containing the fields to update.
+ * @param {string} [path] - The optional path to update data at.
  * @returns {Promise<void>} A promise that resolves when the update is complete.
  */
-export async function updateFirebaseData(updates) {
-  const dbRef = ref(database, FIREBASE_DB_REF);
+export async function updateFirebaseData(updates, path) {
+  const finalPath = path || FIREBASE_DB_REF;
+  const dbRef = ref(database, finalPath);
   return update(dbRef, updates);
 }
 
