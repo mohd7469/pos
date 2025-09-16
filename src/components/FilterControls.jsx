@@ -21,7 +21,7 @@ const FilterControls = ({ orders, stores, onFilterChange, filteredCount, screenO
         { value: 'all', label: 'All Statuses' },
         { value: 'pending', label: 'Pending' },
         { value: 'processing', label: 'Processing' },
-        { value: 'on-hold', label: 'On Hold' },
+        { value: 'on-hold', label: 'Out for Delivery' },
         { value: 'completed', label: 'Completed' },
         { value: 'cancelled', label: 'Cancelled' },
         { value: 'refunded', label: 'Refunded' },
