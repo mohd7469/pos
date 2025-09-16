@@ -1,7 +1,7 @@
 import React from 'react';
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ShoppingCart, DollarSign, Clock, CheckCircle, XCircle, Package } from 'lucide-react';
+import { ShoppingCart, BadgeMinus, Clock, CheckCircle, XCircle, Package } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 
 const OrderStats = ({ orders, setStatusFilter }) => {
@@ -93,6 +93,7 @@ const OrderStats = ({ orders, setStatusFilter }) => {
       const processingOrders = orders.filter(o => o.status === 'processing').length;
       const completedOrders = orders.filter(o => o.status === 'completed').length;
       const cancelledOrders = orders.filter(o => o.status === 'cancelled').length;
+      const refundedOrders = orders.filter(o => o.status === 'refunded').length;
       
       const currencies = [...new Set(orders.map(o => o.currency))];
       const revenueString = currencies.length === 1 && currencies[0]
@@ -106,7 +107,8 @@ const OrderStats = ({ orders, setStatusFilter }) => {
         { title: 'On Hold', value: onHoldOrders.toLocaleString(), icon: Clock, color: 'text-yellow-600', bgColor: 'bg-yellow-50' },
         { title: 'Processing', value: processingOrders.toLocaleString(), icon: Package, color: 'text-indigo-600', bgColor: 'bg-indigo-50' },
         { title: 'Completed', value: completedOrders.toLocaleString(), icon: CheckCircle, color: 'text-green-600', bgColor: 'bg-green-50' },
-        { title: 'Cancelled', value: cancelledOrders.toLocaleString(), icon: XCircle, color: 'text-red-600', bgColor: 'bg-red-50' }
+        { title: 'Cancelled', value: cancelledOrders.toLocaleString(), icon: XCircle, color: 'text-red-600', bgColor: 'bg-red-50' },
+        { title: 'Refunded', value: refundedOrders.toLocaleString(), icon: BadgeMinus, color: 'text-purple-600', bgColor: 'bg-purple-50' }
       ]);
     }
   }, [orders, statCards]);
