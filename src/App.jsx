@@ -2,12 +2,12 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Toaster } from '@/components/ui/toaster';
 import WooCommerceDashboard from '@/components/WooCommerceDashboard';
-import { LocalStorageSync } from "@/firebase/LocalStorageSync.jsx";
+// import { LocalStorageSync } from "@/firebase/LocalStorageSync.jsx";
 
 function App() {
   return (
     <>
-      <LocalStorageSync />
+      {/*<LocalStorageSync />*/}
       <Helmet>
         <title>WooSync</title>
         <meta name="description" content="Centralized dashboard for managing WooCommerce orders across multiple stores with export functionality" />
