@@ -50,7 +50,7 @@ const DashboardHeader = ({ openCSR, openWhatsapp, onAddStore, onSync, onExport, 
             Manage orders from all your WooCommerce stores in one place
           </p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-3 flex-col w-full sm:flex-row sm:flex-wrap sm:w-auto">
           {/*<Popover>
             <PopoverTrigger asChild>
               <Button variant="outline" className="flex items-center">
@@ -66,48 +66,35 @@ const DashboardHeader = ({ openCSR, openWhatsapp, onAddStore, onSync, onExport, 
             </PopoverContent>
           </Popover>*/}
           
-          <div
-            className={"flex justify-center items-center gap-1 font-semibold text-green-800 mx-4"}
-          >
+          <div className="flex justify-center items-center gap-1 font-semibold text-green-800 sm:mx-4 w-full sm:w-auto">
             <Coins className="h-4 w-4 mr-2" />
             {revenueString}
           </div>
           
-          <Button
-            onClick={openWhatsapp}
-            variant="outline"
-          >
+          <Button onClick={openWhatsapp} variant="outline" className="w-full sm:w-auto">
             <ExternalLink className="h-4 w-4 mr-2" />
             Whatsapp Parser
           </Button>
           
-          <Button
-            onClick={openCSR}
-            variant="outline"
-          >
+          <Button onClick={openCSR} variant="outline" className="w-full sm:w-auto">
             <ExternalLink className="h-4 w-4 mr-2" />
             CSR
           </Button>
           
-          <Button
-            onClick={onAddStore}
-            className="bg-blue-600 hover:bg-blue-700"
-          >
+          <Button onClick={onAddStore} className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto">
             <Plus className="h-4 w-4 mr-2" />
             Add Store
           </Button>
           
-          <div className="inline-flex">
+          <div className="flex w-full sm:w-auto">
             {/* Main action */}
             <Button
               onClick={async () => await onSync("")}
               disabled={loading || storesCount === 0}
               variant="outline"
-              className="rounded-r-none"
+              className="w-full sm:w-auto rounded-r-none"
             >
-              <RefreshCw
-                className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`}
-              />
+              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
               Sync Orders
             </Button>
             
@@ -116,18 +103,15 @@ const DashboardHeader = ({ openCSR, openWhatsapp, onAddStore, onSync, onExport, 
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="outline"
-                  className="rounded-l-none px-2 focus-visible:ring-0 focus-visible:outline-none"
+                  className="rounded-l-none px-2 focus-visible:ring-0 focus-visible:outline-none w-auto"
                   disabled={loading || storesCount === 0}
                 >
                   <ChevronDown className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" className="w-full sm:w-auto">
                 {storeOptions.map((store, idx) => (
-                  <DropdownMenuItem
-                    key={idx}
-                    onClick={() => onSync(store.id)}
-                  >
+                  <DropdownMenuItem key={idx} onClick={() => onSync(store.id)}>
                     Sync {store.name}
                   </DropdownMenuItem>
                 ))}
@@ -135,11 +119,7 @@ const DashboardHeader = ({ openCSR, openWhatsapp, onAddStore, onSync, onExport, 
             </DropdownMenu>
           </div>
           
-          <Button
-            onClick={onExport}
-            disabled={ordersCount === 0}
-            variant="outline"
-          >
+          <Button onClick={onExport} disabled={ordersCount === 0} variant="outline" className="w-full sm:w-auto">
             <Download className="h-4 w-4 mr-2" />
             Export
           </Button>
