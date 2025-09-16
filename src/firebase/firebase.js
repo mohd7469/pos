@@ -35,7 +35,7 @@ const getFinalPath = (subPath) => {
 export async function saveFirebaseData(data, path) {
   const finalPath = getFinalPath(path);
   const dbRef = ref(database, finalPath);
-  return set(dbRef, data);
+  return set(dbRef, JSON.stringify(data));
 }
 
 /**

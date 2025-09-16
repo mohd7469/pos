@@ -63,7 +63,7 @@ const WooCommerceDashboard = () => {
   const handleScreenOptionsChange = (key, value) => {
     const newOptions = { ...screenOptions, [key]: value };
     setScreenOptions(newOptions);
-    saveFirebaseData(JSON.stringify(newOptions), SCREEN_OPTIONS_PATH);
+    saveFirebaseData(newOptions, SCREEN_OPTIONS_PATH);
   };
 
   const handleOpenStoreModal = (store = null) => {
