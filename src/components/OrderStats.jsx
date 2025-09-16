@@ -5,7 +5,7 @@ import { ShoppingCart, BadgeMinus, Clock, CheckCircle, XCircle, Package } from '
 import { Card } from '@/components/ui/card';
 
 const OrderStats = ({ orders, setStatusFilter }) => {
-  /*const stats = React.useMemo(() => {
+  const stats = React.useMemo(() => {
     const totalOrders = orders.length;
     const totalRevenue = orders.reduce((sum, order) => sum + parseFloat(order.total || 0), 0);
     // const pendingOrders = orders.filter(order => order.status === 'pending').length;
@@ -13,12 +13,13 @@ const OrderStats = ({ orders, setStatusFilter }) => {
     const processingOrders = orders.filter(order => order.status === 'processing').length;
     const completedOrders = orders.filter(order => order.status === 'completed').length;
     const cancelledOrders = orders.filter(o => o.status === 'cancelled').length;
-
+    const refundedOrders = orders.filter(o => o.status === 'refunded').length;
+    
     const currencies = [...new Set(orders.map(o => o.currency))];
     const revenueString = currencies.length === 1 && currencies[0]
       ? totalRevenue.toLocaleString('en-US', { style: 'currency', currency: currencies[0], minimumFractionDigits: 2, maximumFractionDigits: 2 })
       : `${totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} 💸`;
-
+    
     return {
       totalOrders,
       revenueString,
@@ -26,64 +27,24 @@ const OrderStats = ({ orders, setStatusFilter }) => {
       onHoldOrders,
       processingOrders,
       completedOrders,
-      cancelledOrders
+      cancelledOrders,
+      refundedOrders
     };
   }, [orders]);
-
+  
   const statCards = [
-    {
-      title: 'Total Orders',
-      value: stats.totalOrders.toLocaleString(),
-      icon: ShoppingCart,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50'
-    },
-    {
-      title: 'Total Revenue',
-      value: stats.revenueString,
-      icon: DollarSign,
-      color: 'text-green-600',
-      bgColor: 'bg-green-50'
-    },
-    {
-      title: 'Pending',
-      value: stats.pendingOrders.toLocaleString(),
-      icon: Clock,
-      color: 'text-yellow-600',
-      bgColor: 'bg-yellow-50'
-    },
-    {
-      title: 'On Hold',
-      value: stats.onHoldOrders.toLocaleString(),
-      icon: Clock,
-      color: 'text-yellow-600',
-      bgColor: 'bg-yellow-50'
-    },
-    {
-      title: 'Processing',
-      value: stats.processingOrders.toLocaleString(),
-      icon: Package,
-      color: 'text-indigo-600',
-      bgColor: 'bg-indigo-50'
-    },
-    {
-      title: 'Completed',
-      value: stats.completedOrders.toLocaleString(),
-      icon: CheckCircle,
-      color: 'text-green-600',
-      bgColor: 'bg-green-50'
-    },
-    {
-      title: 'Cancelled',
-      value: stats.cancelledOrders.toLocaleString(),
-      icon: XCircle,
-      color: 'text-red-600',
-      bgColor: 'bg-red-50'
-    }
-  ];*/
+    { title: 'Total Orders', value: stats.totalOrders.toLocaleString(), icon: ShoppingCart, color: 'text-blue-600', bgColor: 'bg-blue-50' },
+    /*{ title: 'Total Revenue', value: revenueString, icon: DollarSign, color: 'text-green-600', bgColor: 'bg-green-50' },*/
+    /*{ title: 'Pending', value: pendingOrders.toLocaleString(), icon: Clock, color: 'text-yellow-600', bgColor: 'bg-yellow-50' },*/
+    { title: 'On Hold', value: stats.onHoldOrders.toLocaleString(), icon: Clock, color: 'text-yellow-600', bgColor: 'bg-yellow-50' },
+    { title: 'Processing', value: stats.processingOrders.toLocaleString(), icon: Package, color: 'text-indigo-600', bgColor: 'bg-indigo-50' },
+    { title: 'Completed', value: stats.completedOrders.toLocaleString(), icon: CheckCircle, color: 'text-green-600', bgColor: 'bg-green-50' },
+    { title: 'Cancelled', value: stats.cancelledOrders.toLocaleString(), icon: XCircle, color: 'text-red-600', bgColor: 'bg-red-50' },
+    { title: 'Refunded', value: stats.refundedOrders.toLocaleString(), icon: BadgeMinus, color: 'text-purple-600', bgColor: 'bg-purple-50' }
+  ];
   // above code is to auto recalculate every time when order array change
   
-  const [statCards, setStatCards] = React.useState([]);
+  /*const [statCards, setStatCards] = React.useState([]);
   useEffect(() => {
     if (!statCards?.length && orders.length > 0) {
       const totalOrders = orders.length;
@@ -102,8 +63,8 @@ const OrderStats = ({ orders, setStatusFilter }) => {
       
       setStatCards([
         { title: 'Total Orders', value: totalOrders.toLocaleString(), icon: ShoppingCart, color: 'text-blue-600', bgColor: 'bg-blue-50' },
-        /*{ title: 'Total Revenue', value: revenueString, icon: DollarSign, color: 'text-green-600', bgColor: 'bg-green-50' },*/
-        /*{ title: 'Pending', value: pendingOrders.toLocaleString(), icon: Clock, color: 'text-yellow-600', bgColor: 'bg-yellow-50' },*/
+        /!*{ title: 'Total Revenue', value: revenueString, icon: DollarSign, color: 'text-green-600', bgColor: 'bg-green-50' },*!/
+        /!*{ title: 'Pending', value: pendingOrders.toLocaleString(), icon: Clock, color: 'text-yellow-600', bgColor: 'bg-yellow-50' },*!/
         { title: 'On Hold', value: onHoldOrders.toLocaleString(), icon: Clock, color: 'text-yellow-600', bgColor: 'bg-yellow-50' },
         { title: 'Processing', value: processingOrders.toLocaleString(), icon: Package, color: 'text-indigo-600', bgColor: 'bg-indigo-50' },
         { title: 'Completed', value: completedOrders.toLocaleString(), icon: CheckCircle, color: 'text-green-600', bgColor: 'bg-green-50' },
@@ -112,6 +73,7 @@ const OrderStats = ({ orders, setStatusFilter }) => {
       ]);
     }
   }, [orders, statCards]);
+  */
   
   const handleStatsClick = ((stat) => {
     // picked from FilterControls.jsx
